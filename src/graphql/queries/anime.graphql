@@ -1,0 +1,97 @@
+query GetHomeAnimeRows($currentYear: Int!, $currentSeason: Season!, $yearlyBestYear: Int!) {
+  seasonBest: animeList(year: $currentYear, season: $currentSeason, pageSize: 12) {
+    content {
+      ...AnimeCard
+    }
+  }
+  seasonPopular: animeList(
+    year: $currentYear
+    season: $currentSeason
+    pageSize: 12
+    sortBy: POPULARITY
+  ) {
+    content {
+      ...AnimeCard
+    }
+  }
+  yearlyBest: animeList(year: $yearlyBestYear, pageSize: 12) {
+    content {
+      ...AnimeCard
+    }
+  }
+  allTimeBest: animeList(pageSize: 12) {
+    content {
+      ...AnimeCard
+    }
+  }
+}
+
+query GetAnimeList($year: Int, $season: Season, $pageNumber: Int, $pageSize: Int, $sortBy: SortBy) {
+  animeList(
+    year: $year
+    season: $season
+    pageNumber: $pageNumber
+    pageSize: $pageSize
+    sortBy: $sortBy
+  ) {
+    ...AnimeList
+  }
+}
+
+query GetAnimeListBySearch($keyword: String, $pageNumber: Int, $pageSize: Int) {
+  animeListBySearch(keyword: $keyword, pageNumber: $pageNumber, pageSize: $pageSize) {
+    ...AnimeList
+  }
+}
+
+fragment AnimeList on AnimePage {
+  content {
+    animeId
+    ...AnimeCard
+  }
+  pageInfo {
+    size
+    number
+    totalElements
+    totalPages
+  }
+}
+
+fragment AnimeCard on Anime {
+  animeId
+  title {
+    titleNative
+    titleCn
+  }
+  coverImage
+  averageScore
+}
+
+query GetAnimeDetail($animeId: ID!) {
+  anime(animeId: $animeId) {
+    animeId
+    coverImage
+    startDate
+    averageScore
+    popularity
+    title {
+      titleNative
+      titleRomaji
+      titleEn
+      titleCn
+    }
+    mappings {
+      mappingId
+      ...MappingItem
+    }
+  }
+}
+
+fragment MappingItem on Mapping {
+  sourcePlatform
+  platformId
+  rawScore
+  normalizedScore
+  rawPopularity
+  normalizedPopularity
+}

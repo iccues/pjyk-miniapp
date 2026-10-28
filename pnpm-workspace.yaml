@@ -1,0 +1,5 @@
+# 单项目也用这个文件存放 pnpm 设置；这些依赖的安装脚本不是构建所需，不执行
+allowBuilds:
+  core-js: false
+  core-js-pure: false
+  esbuild: false

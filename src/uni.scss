@@ -1,0 +1,22 @@
+/*
+ * uni-app 会把本文件自动注入每个 lang="scss" 的样式块，这里只放变量，不放会产出 CSS 的规则。
+ * 配色取自 pjyk 前台（web/apps/client）使用的 Tailwind 色板，小程序部分机型不支持 oklch，统一换算成十六进制。
+ */
+
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5dc;
+$gray-400: #99a1af;
+$gray-500: #6a7282;
+$gray-600: #4a5565;
+$gray-700: #364153;
+$gray-800: #1e2939;
+$gray-900: #101828;
+$indigo-500: #615fff;
+$indigo-600: #4f39f6;
+$pink-500: #f6339a;
+$red-600: #e7000b;
+
+// 页面左右留白，与前台 --page-gutter 一致
+$page-gutter: 20px;
