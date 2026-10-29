@@ -41,7 +41,7 @@ const clear = () => {
   align-items: center;
   height: 40px;
   padding-left: 12px;
-  border-radius: 20px;
+  border-radius: 12px;
   background-color: $gray-100;
 }
 

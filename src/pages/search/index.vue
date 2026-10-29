@@ -21,12 +21,7 @@ import { request } from "@/graphql/request";
 import { openPage } from "@/utils/navigation";
 import { decodeQueryValue, parseLayout, toPageQuery } from "@/utils/query";
 import { routes, type DocName } from "@/utils/routes";
-import {
-  formatSeason,
-  getCurrentSeason,
-  listSeasonsBackward,
-  type SeasonKey,
-} from "@/utils/season";
+import { formatSeason, getCurrentSeason } from "@/utils/season";
 
 // 停止输入后等多久再发起搜索，避免每敲一个字就请求一次
 const SEARCH_DELAY = 300;
@@ -90,7 +85,7 @@ const summary = computed(() =>
   loading.value && items.value.length === 0 ? "搜索中…" : `找到 ${total.value} 部`,
 );
 
-// 没有输入时的探索内容：本季热门、按季度浏览、文档入口
+// 没有输入时的探索内容：本季热门、文档入口
 const currentSeason = getCurrentSeason();
 
 const hot = useRequest(async () => {
@@ -102,21 +97,11 @@ const hot = useRequest(async () => {
   return data.animeList.content;
 });
 
-const browseSeasons = listSeasonsBackward(currentSeason, 8).map((key) => ({
-  id: `${key.year}-${key.season}`,
-  key,
-  label: formatSeason(key),
-}));
-
 const DOC_LINKS: { name: DocName; label: string }[] = [
   { name: "about", label: "关于有希计划" },
   { name: "metric", label: "评分说明" },
   { name: "platforms", label: "平台参数" },
 ];
-
-const openSeason = (key: SeasonKey) => {
-  openPage(routes.list({ filters: { ...key, sortBy: "SCORE" } }));
-};
 
 const openDoc = (name: DocName) => {
   openPage(routes.article(name));
@@ -184,21 +169,6 @@ useShareAppMessage(() => ({
       </view>
     </view>
 
-    <view class="search-page__section">
-      <view class="search-page__section-title">按季度浏览</view>
-      <view class="search-page__chips">
-        <view
-          v-for="item in browseSeasons"
-          :key="item.id"
-          class="search-page__chip"
-          hover-class="search-page__chip--active"
-          @tap="openSeason(item.key)"
-        >
-          {{ item.label }}
-        </view>
-      </view>
-    </view>
-
     <view class="search-page__links">
       <view
         v-for="link in DOC_LINKS"
@@ -240,10 +210,6 @@ useShareAppMessage(() => ({
   padding: 8px $page-gutter 32px;
 }
 
-.search-page__section + .search-page__section {
-  margin-top: 28px;
-}
-
 .search-page__section-title {
   display: flex;
   align-items: baseline;
@@ -272,25 +238,6 @@ useShareAppMessage(() => ({
   color: $red-600;
   font-size: 14px;
   text-align: center;
-}
-
-.search-page__chips {
-  display: flex;
-  flex-wrap: wrap;
-  margin: -4px;
-}
-
-.search-page__chip {
-  margin: 4px;
-  padding: 7px 14px;
-  border-radius: 16px;
-  background-color: $gray-100;
-  color: $gray-700;
-  font-size: 14px;
-}
-
-.search-page__chip--active {
-  background-color: $gray-200;
 }
 
 .search-page__links {

@@ -35,28 +35,6 @@ export const getDefaultRankingYear = (date = new Date()): number => {
   return season === "WINTER" ? year - 1 : year;
 };
 
-export const getPreviousSeason = ({ year, season }: SeasonKey): SeasonKey => {
-  const index = SEASONS_IN_ORDER.indexOf(season);
-  return index === 0
-    ? { year: year - 1, season: "FALL" }
-    : { year, season: SEASONS_IN_ORDER[index - 1]! };
-};
-
-/**
- * 从 from 开始往前列出季度（含 from），最多 count 个，不早于 EARLIEST_YEAR
- */
-export const listSeasonsBackward = (from: SeasonKey, count = Infinity): SeasonKey[] => {
-  const seasons: SeasonKey[] = [];
-  for (
-    let key = from;
-    seasons.length < count && key.year >= EARLIEST_YEAR;
-    key = getPreviousSeason(key)
-  ) {
-    seasons.push(key);
-  }
-  return seasons;
-};
-
 /**
  * 季度名称，例如"2026年10月"
  */
