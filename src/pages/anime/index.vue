@@ -16,7 +16,7 @@ import { toPageQuery } from "@/utils/query";
 import { routes, type DocName } from "@/utils/routes";
 import { formatSeason, getSeasonOfStartDate } from "@/utils/season";
 
-// 头图滚出这么多之后，导航栏切换为白底并显示标题
+// 头图滚出这么多之后，导航栏切换为白底
 const SOLID_NAV_SCROLL_TOP = 120;
 
 const { statusBarHeight, navBarHeight } = getNavBarMetrics();
@@ -122,7 +122,7 @@ onShareAppMessage(() => ({
 </script>
 
 <template>
-  <DetailNavBar :title="displayTitle" :solid="navSolid" :can-go-back="canGoBack" />
+  <DetailNavBar :solid="navSolid" :can-go-back="canGoBack" />
 
   <view
     v-if="invalidId || anime === null"

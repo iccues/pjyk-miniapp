@@ -28,8 +28,6 @@ export interface NavBarMetrics {
   statusBarHeight: number;
   /** 导航栏高度，和右上角胶囊按钮垂直居中对齐 */
   navBarHeight: number;
-  /** 胶囊按钮占用的右侧宽度，标题左右各留出这么多，保证居中且不被遮挡 */
-  capsuleSpace: number;
 }
 
 let navBarMetrics: NavBarMetrics | undefined;
@@ -40,14 +38,13 @@ let navBarMetrics: NavBarMetrics | undefined;
 export const getNavBarMetrics = (): NavBarMetrics => {
   if (navBarMetrics) return navBarMetrics;
 
-  const { statusBarHeight = 0, windowWidth } = uni.getSystemInfoSync();
-  navBarMetrics = { statusBarHeight, navBarHeight: 44, capsuleSpace: 56 };
+  const { statusBarHeight = 0 } = uni.getSystemInfoSync();
+  navBarMetrics = { statusBarHeight, navBarHeight: 44 };
 
   try {
     const rect = uni.getMenuButtonBoundingClientRect();
     if (rect?.height > 0) {
       navBarMetrics.navBarHeight = (rect.top - statusBarHeight) * 2 + rect.height;
-      navBarMetrics.capsuleSpace = windowWidth - rect.left + 8;
     }
   } catch {
     // H5 没有胶囊按钮，使用默认尺寸

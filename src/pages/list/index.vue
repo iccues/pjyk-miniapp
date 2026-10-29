@@ -16,13 +16,8 @@ const initial = ref<{ filters: AnimeListFilters; layout: ListLayout }>();
 const state = ref({ filters: DEFAULT_FILTERS, layout: "grid" as ListLayout });
 const showHome = ref(false);
 
-const updateTitle = () => {
-  uni.setNavigationBarTitle({ title: describeFilters(state.value.filters) });
-};
-
 const onChange = (filters: AnimeListFilters, layout: ListLayout) => {
   state.value = { filters, layout };
-  updateTitle();
 };
 
 onLoad((options) => {
@@ -32,7 +27,6 @@ onLoad((options) => {
     layout: parseLayout(query.layout) ?? "grid",
   };
   initial.value = state.value;
-  updateTitle();
 
   showHome.value = isEntryPage();
   if (showHome.value) hideNativeHomeButton();

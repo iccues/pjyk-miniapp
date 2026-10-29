@@ -3,15 +3,15 @@ import { computed } from "vue";
 
 import { getNavBarMetrics, goHome } from "@/utils/navigation";
 
+// 只有左上角的返回 / 回首页按钮，不显示标题
 const props = defineProps<{
-  title: string;
   /** 为 false 时背景透明、图标为白色，叠在封面头图上；滚动后切换为白底 */
   solid: boolean;
   /** 从分享卡片直接打开时没有上一页，左上角改为"回首页" */
   canGoBack: boolean;
 }>();
 
-const { statusBarHeight, navBarHeight, capsuleSpace } = getNavBarMetrics();
+const { statusBarHeight, navBarHeight } = getNavBarMetrics();
 
 const icon = computed(() => {
   const name = props.canGoBack ? "back" : "home";
@@ -33,7 +33,7 @@ const onLeftTap = () => {
     :class="{ 'nav--solid': solid }"
     :style="{ paddingTop: `${statusBarHeight}px` }"
   >
-    <view class="bar" :style="{ height: `${navBarHeight}px`, padding: `0 ${capsuleSpace}px` }">
+    <view class="bar" :style="{ height: `${navBarHeight}px` }">
       <view
         class="left"
         hover-class="left--active"
@@ -42,7 +42,6 @@ const onLeftTap = () => {
       >
         <image class="icon" :src="icon" mode="aspectFit" />
       </view>
-      <view class="title" :class="{ 'title--visible': solid }">{{ title }}</view>
     </view>
   </view>
 </template>
@@ -64,9 +63,6 @@ const onLeftTap = () => {
 
 .bar {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .left {
@@ -87,20 +83,5 @@ const onLeftTap = () => {
 .icon {
   width: 22px;
   height: 22px;
-}
-
-.title {
-  overflow: hidden;
-  color: $gray-900;
-  font-size: 16px;
-  font-weight: 600;
-  opacity: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: opacity 0.2s;
-}
-
-.title--visible {
-  opacity: 1;
 }
 </style>

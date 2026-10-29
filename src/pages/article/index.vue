@@ -30,7 +30,6 @@ const switchDoc = (name: DocName) => {
 onLoad((options) => {
   const name = toPageQuery(options).name as DocName;
   if (DOC_NAMES.includes(name)) current.value = name;
-  uni.setNavigationBarTitle({ title: doc.value.title });
 
   showHome.value = isEntryPage();
   if (showHome.value) hideNativeHomeButton();
