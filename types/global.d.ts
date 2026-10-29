@@ -10,7 +10,7 @@ declare namespace NodeJS {
     NODE_ENV: "development" | "production";
     /** 当前构建的平台 */
     TARO_ENV: "tt" | "weapp" | "h5";
-    /** GraphQL 接口的完整地址，默认值见 .env */
+    /** 小程序端请求的 GraphQL 接口完整地址，默认值见 .env */
     TARO_APP_GRAPHQL_URL: string;
   }
 }

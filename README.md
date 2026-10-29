@@ -73,13 +73,15 @@ pnpm fmt:check && pnpm lint && pnpm type-check
 
 ### 浏览器预览
 
-`dev:h5` 可以在浏览器里预览页面（`http://localhost:5180`），适合调样式；最终效果以开发者工具和真机为准。H5 下需要让请求走开发服务器代理：
+`pnpm dev:h5` 可以在浏览器里预览页面（`http://localhost:5180`），适合调样式；最终效果以开发者工具和真机为准。
 
-```bash
-TARO_APP_GRAPHQL_URL=/api/graphql API_PROXY=https://www.yukiani.com pnpm dev:h5
+线上接口不允许跨域，H5 下的请求固定发到同源的 `/api/graphql`，由开发服务器转发到线上接口。要联调本地运行的 pjyk 后端，在 `.env.local` 里加一行：
+
+```
+TARO_APP_API_PROXY=http://localhost:8080
 ```
 
-`API_PROXY` 默认是 `http://localhost:8080`，即本地运行的 pjyk 后端。
+H5 只用于本地预览，`build:h5` 的产物同样依赖 `/api` 的转发，不能直接部署。
 
 ### GraphQL
 
@@ -93,7 +95,7 @@ codegen 使用 `documentMode: "string"`，查询以字符串形式由 `Taro.requ
 
 ## 配置
 
-- **接口地址**：默认请求 `.env` 里的 `TARO_APP_GRAPHQL_URL`（`https://www.yukiani.com/api/graphql`）。本地联调可在 `.env.local` 或命令行里覆盖；只有 `TARO_APP_` 开头的变量会在构建时替换进代码。
+- **接口地址**：小程序端请求 `.env` 里的 `TARO_APP_GRAPHQL_URL`（`https://www.yukiani.com/api/graphql`），可在 `.env.local` 或命令行里覆盖；只有 `TARO_APP_` 开头的变量会在构建时替换进代码。H5 的请求地址见上面的"浏览器预览"。
 - **AppID**：抖音端填在 `project.tt.json`，微信端填在 `project.config.json`；`touristappid` 是开发者工具的测试号。也可以用环境变量 `TARO_APP_ID` 在构建时替换。
 - **合法域名**：上线前需要在抖音开放平台和微信公众平台把接口域名加入 request 合法域名（必须是 HTTPS，一般还要求 ICP 备案）。两个项目配置文件里的 `urlCheck: false` 只在开发者工具里跳过校验。
 

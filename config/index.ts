@@ -16,6 +16,14 @@ const addMarkdownLoader = (chain: { module: any }) => {
     .loader(path.join(root, "build/markdown-loader.js"));
 };
 
+// 开发模式下 Taro 会先用 esbuild 扫描源码里引用的依赖，esbuild 不认识 .md，让它把文档当成空模块跳过
+const skipMarkdownInPrebundle = {
+  name: "skip-markdown",
+  setup(build: { onLoad: (options: { filter: RegExp }, callback: () => object) => void }) {
+    build.onLoad({ filter: /\.md$/ }, () => ({ contents: "export default []", loader: "js" }));
+  },
+};
+
 // https://docs.taro.zone/docs/config
 export default defineConfig<"webpack5">(async (merge) => {
   const baseConfig: UserConfigExport<"webpack5"> = {
@@ -39,7 +47,10 @@ export default defineConfig<"webpack5">(async (merge) => {
       options: {},
     },
     framework: "vue3",
-    compiler: "webpack5",
+    compiler: {
+      type: "webpack5",
+      prebundle: { esbuild: { plugins: [skipMarkdownInPrebundle] } },
+    },
     cache: { enable: false },
     mini: {
       // 各组件的 class 都带组件前缀，样式之间没有覆盖关系，合并时不用在意先后顺序
@@ -63,10 +74,11 @@ export default defineConfig<"webpack5">(async (merge) => {
       miniCssExtractPluginOption: { ignoreOrder: true },
       devServer: {
         port: 5180,
-        // 仅 H5 调试使用；小程序端直接请求 TARO_APP_GRAPHQL_URL 指向的完整地址
+        // H5 请求同源的 /api/graphql（见 src/config.ts），由这里转发，绕开浏览器的跨域限制；
+        // 默认转发到线上接口，联调本地 pjyk 后端时在 .env.local 里设置 TARO_APP_API_PROXY=http://localhost:8080
         proxy: {
           "/api": {
-            target: process.env.API_PROXY ?? "http://localhost:8080",
+            target: process.env.TARO_APP_API_PROXY || "https://www.yukiani.com",
             changeOrigin: true,
           },
         },
