@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 import type { ListLayout } from "@/constants/ui-options";
 import { SORT_BY_OPTIONS } from "@/constants/ui-options";
 import type { SortBy } from "@/graphql/generated/graphql";
-import { openPage } from "@/utils/navigation";
-import { routes } from "@/utils/routes";
 
 import LayoutToggle from "./LayoutToggle.vue";
+import ScoreHelpSheet from "./ScoreHelpSheet.vue";
 import SegmentedControl from "./SegmentedControl.vue";
 
 // 不传 sortBy 时不显示排序（例如搜索结果），左侧改为显示 summary
@@ -19,9 +20,8 @@ const changeSortBy = (value: SortBy) => {
   emit("update:sortBy", value);
 };
 
-const openMetricArticle = () => {
-  openPage(routes.article("metric"));
-};
+// 评分说明用底部弹层，和详情页的"综合评分"一致，弹层里可以再打开完整说明
+const helpVisible = ref(false);
 </script>
 
 <template>
@@ -38,13 +38,15 @@ const openMetricArticle = () => {
       <view
         class="list-toolbar__help"
         hover-class="list-toolbar__help--active"
-        @tap="openMetricArticle"
+        @tap="helpVisible = true"
       >
         <text>评分说明</text>
         <view class="list-toolbar__help-icon">?</view>
       </view>
       <LayoutToggle v-model="layout" />
     </view>
+
+    <ScoreHelpSheet :visible="helpVisible" @close="helpVisible = false" />
   </view>
 </template>
 

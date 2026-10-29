@@ -51,6 +51,14 @@ const blockScroll = () => {};
   z-index: 100;
 }
 
+/*
+ * H5 的标签栏是叠在页面上的普通元素，标签页里的弹层要让出它的高度，和小程序一样停在标签栏上方；
+ * 小程序的原生标签栏在页面区域之外，也没有 .taro_tabbar_page，不受影响
+ */
+.taro_tabbar_page .bottom-sheet {
+  bottom: calc(var(--taro-tabbar-height, 50px) + env(safe-area-inset-bottom));
+}
+
 .bottom-sheet__mask {
   position: absolute;
   top: 0;
@@ -120,5 +128,38 @@ const blockScroll = () => {};
 
 .bottom-sheet__close-icon::after {
   transform: rotate(-45deg);
+}
+
+/* 以下供插槽内容使用：说明条目和底部的主按钮 */
+.bottom-sheet__item + .bottom-sheet__item {
+  margin-top: 16px;
+}
+
+.bottom-sheet__item-title {
+  color: $gray-900;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.bottom-sheet__item-text {
+  margin-top: 4px;
+  color: $gray-600;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.bottom-sheet__button {
+  margin-top: 24px;
+  border-radius: 12px;
+  background-color: $gray-900;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 44px;
+  text-align: center;
+}
+
+.bottom-sheet__button--active {
+  background-color: $gray-700;
 }
 </style>

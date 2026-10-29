@@ -7,6 +7,7 @@ import AnimeShelf from "@/components/AnimeShelf.vue";
 import BottomSheet from "@/components/BottomSheet.vue";
 import DetailNavBar from "@/components/DetailNavBar.vue";
 import PlatformScoreRow from "@/components/PlatformScoreRow.vue";
+import ScoreHelpSheet from "@/components/ScoreHelpSheet.vue";
 import { useRequest } from "@/composables/useRequest";
 import { GetAnimeDetailDocument, GetAnimeListDocument } from "@/graphql/generated/graphql";
 import { request } from "@/graphql/request";
@@ -245,59 +246,31 @@ useShareAppMessage(() => ({
     </view>
   </view>
 
-  <BottomSheet :visible="sheet === 'score'" title="综合评分是怎么算的" @close="closeSheet">
-    <view class="anime-page__sheet-item">
-      <view class="anime-page__sheet-item-title">统一尺度</view>
-      <view class="anime-page__sheet-item-text">
-        Bangumi、MyAnimeList、AniList 的打分习惯不同，先把每个平台的评分换算成 0–100
-        的标准化评分。50 分代表该平台的平均水平。
-      </view>
-    </view>
-    <view class="anime-page__sheet-item">
-      <view class="anime-page__sheet-item-title">加权平均</view>
-      <view class="anime-page__sheet-item-text">
-        各平台的标准化评分按权重加权平均（Bangumi 为 2，其他平台为
-        1），得到综合评分。没有评分的平台不参与计算。
-      </view>
-    </view>
-    <view class="anime-page__sheet-item">
-      <view class="anime-page__sheet-item-title">人气值</view>
-      <view class="anime-page__sheet-item-text">
-        各平台的关注人数先按该平台的人气中位数换算，再加权求和。覆盖的平台越多、关注的人越多，人气值越高。
-      </view>
-    </view>
-    <view
-      class="anime-page__sheet-button"
-      hover-class="anime-page__sheet-button--active"
-      @tap="openArticle('metric')"
-    >
-      查看完整说明
-    </view>
-  </BottomSheet>
+  <ScoreHelpSheet :visible="sheet === 'score'" @close="closeSheet" />
 
   <BottomSheet :visible="sheet === 'platform'" title="各平台数据说明" @close="closeSheet">
-    <view class="anime-page__sheet-item">
-      <view class="anime-page__sheet-item-title">标准化评分（横条）</view>
-      <view class="anime-page__sheet-item-text">
+    <view class="bottom-sheet__item">
+      <view class="bottom-sheet__item-title">标准化评分（横条）</view>
+      <view class="bottom-sheet__item-text">
         该平台评分换算到 0–100 后的结果，50 分为该平台的平均水平，可以直接跨平台比较。
       </view>
     </view>
-    <view class="anime-page__sheet-item">
-      <view class="anime-page__sheet-item-title">原始评分与人气</view>
-      <view class="anime-page__sheet-item-text">
+    <view class="bottom-sheet__item">
+      <view class="bottom-sheet__item-title">原始评分与人气</view>
+      <view class="bottom-sheet__item-text">
         原始评分是平台上显示的分数（Bangumi、MyAnimeList 为 10 分制，AniList 为 100
         分制）。原始人气在 AniList 为关注人数，在另外两个平台为评分人数。
       </view>
     </view>
-    <view class="anime-page__sheet-item">
-      <view class="anime-page__sheet-item-title">标准化人气</view>
-      <view class="anime-page__sheet-item-text">
+    <view class="bottom-sheet__item">
+      <view class="bottom-sheet__item-title">标准化人气</view>
+      <view class="bottom-sheet__item-text">
         原始人气按该平台的人气中位数换算后的值，中位数对应 10000。点击某个平台可以复制它的条目链接。
       </view>
     </view>
     <view
-      class="anime-page__sheet-button"
-      hover-class="anime-page__sheet-button--active"
+      class="bottom-sheet__button"
+      hover-class="bottom-sheet__button--active"
       @tap="openArticle('platforms')"
     >
       查看平台参数
@@ -528,37 +501,5 @@ useShareAppMessage(() => ({
 
 .anime-page__shelf {
   margin-top: 28px;
-}
-
-.anime-page__sheet-item + .anime-page__sheet-item {
-  margin-top: 16px;
-}
-
-.anime-page__sheet-item-title {
-  color: $gray-900;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.anime-page__sheet-item-text {
-  margin-top: 4px;
-  color: $gray-600;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.anime-page__sheet-button {
-  margin-top: 24px;
-  border-radius: 12px;
-  background-color: $gray-900;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 44px;
-  text-align: center;
-}
-
-.anime-page__sheet-button--active {
-  background-color: $gray-700;
 }
 </style>
