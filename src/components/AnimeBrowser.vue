@@ -92,7 +92,7 @@ defineExpose({ loadMore });
 }
 
 .header-placeholder {
-  height: calc(#{$list-tabs-height} + #{$list-toolbar-height} + 1px);
+  height: calc(#{$filter-row-height} + #{$list-toolbar-height} + 1px);
 }
 
 .content {

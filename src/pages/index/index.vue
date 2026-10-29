@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { onLoad, onPullDownRefresh, onShareAppMessage } from "@dcloudio/uni-app";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 
 import AnimeShelf from "@/components/AnimeShelf.vue";
 import PageFooter from "@/components/PageFooter.vue";
-import SearchBar from "@/components/SearchBar.vue";
 import { useRequest } from "@/composables/useRequest";
 import { GetHomeAnimeRowsDocument, type AnimeCardFragment } from "@/graphql/generated/graphql";
 import { request } from "@/graphql/request";
 import type { AnimeListFilters } from "@/utils/filters";
 import { openPage } from "@/utils/navigation";
-import { setPendingSearch } from "@/utils/pending-search";
-import { routes, TAB_PAGES, type DocName } from "@/utils/routes";
+import { routes, type DocName } from "@/utils/routes";
 import { formatSeason, getCurrentSeason, getDefaultRankingYear } from "@/utils/season";
 
 const current = getCurrentSeason();
@@ -63,17 +61,6 @@ const rows = computed(() => {
   return items;
 });
 
-const keyword = ref("");
-
-// 搜索在单独的标签页里完成；switchTab 不能带参数，关键词先暂存再切过去
-const search = () => {
-  const q = keyword.value.trim();
-  if (!q) return;
-  setPendingSearch(q);
-  keyword.value = "";
-  uni.switchTab({ url: TAB_PAGES.search });
-};
-
 const openList = (filters: AnimeListFilters) => {
   openPage(routes.list({ filters }));
 };
@@ -104,10 +91,6 @@ onShareAppMessage(() => ({
     <view class="hero-title">更全面的动画评分</view>
     <view class="hero-description">
       有希计划整合 Bangumi、MyAnimeList、AniList 的评分与热度数据，归一化后给出统一的综合评价。
-    </view>
-
-    <view class="hero-search">
-      <SearchBar v-model="keyword" show-button @confirm="search" />
     </view>
 
     <view class="quick-links">
@@ -156,15 +139,10 @@ onShareAppMessage(() => ({
   line-height: 1.65;
 }
 
-.hero-search {
-  margin-top: 24px;
-  text-align: left;
-}
-
 .quick-links {
   display: flex;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 16px;
 }
 
 .quick-link {

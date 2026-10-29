@@ -5,7 +5,7 @@ import type { Season, SortBy } from "@/graphql/generated/graphql";
 import { applyFilterChanges, type AnimeListFilters } from "@/utils/filters";
 
 import ListToolbar from "./ListToolbar.vue";
-import TabItem from "./TabItem.vue";
+import SegmentedControl from "./SegmentedControl.vue";
 import YearPicker from "./YearPicker.vue";
 
 // 第一行选年份和季度，第二行是排序、评分说明和样式切换
@@ -29,14 +29,12 @@ const changeSortBy = (sortBy: SortBy) => change({ sortBy });
     <view class="row">
       <YearPicker :model-value="filters.year" @update:model-value="changeYear" />
       <view class="seasons">
-        <view v-for="option in SEASON_OPTIONS" :key="option.label" class="season">
-          <TabItem
-            :label="option.label"
-            :active="option.value === filters.season"
-            :disabled="filters.year == null"
-            @select="changeSeason(option.value)"
-          />
-        </view>
+        <SegmentedControl
+          :options="SEASON_OPTIONS"
+          :value="filters.season"
+          :disabled="filters.year == null"
+          @change="changeSeason"
+        />
       </view>
     </view>
     <ListToolbar v-model:layout="layout" :sort-by="filters.sortBy" @update:sort-by="changeSortBy" />
@@ -51,15 +49,10 @@ const changeSortBy = (sortBy: SortBy) => change({ sortBy });
 .row {
   display: flex;
   align-items: center;
-  height: $list-tabs-height;
+  height: $filter-row-height;
 }
 
 .seasons {
-  display: flex;
-  margin-left: 16px;
-}
-
-.season + .season {
-  margin-left: 16px;
+  margin-left: 10px;
 }
 </style>
