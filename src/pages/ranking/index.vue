@@ -3,6 +3,7 @@ import { useLoad, useReachBottom, useShareAppMessage } from "@tarojs/taro";
 import { ref } from "vue";
 
 import AnimeBrowser from "@/components/AnimeBrowser.vue";
+import NavBar from "@/components/NavBar.vue";
 import type { ListLayout } from "@/constants/ui-options";
 import { DEFAULT_FILTERS, describeFilters, type AnimeListFilters } from "@/utils/filters";
 import { parseFilters, parseLayout, toPageQuery } from "@/utils/query";
@@ -38,6 +39,7 @@ useShareAppMessage(() => ({
 </script>
 
 <template>
+  <NavBar :back="false" />
   <AnimeBrowser
     v-if="initial"
     ref="browser"

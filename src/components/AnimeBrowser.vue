@@ -5,6 +5,7 @@ import { onMounted, ref } from "vue";
 import { useAnimeListQuery } from "@/composables/useAnimeListQuery";
 import type { ListLayout } from "@/constants/ui-options";
 import type { AnimeListFilters } from "@/utils/filters";
+import { getNavBarMetrics } from "@/utils/navigation";
 
 import AnimeFilterBar from "./AnimeFilterBar.vue";
 import AnimeList from "./AnimeList.vue";
@@ -28,6 +29,8 @@ const layout = ref<ListLayout>(props.initialLayout);
 const { items, total, loading, finished, error, reset, loadMore, retry } = useAnimeListQuery(
   () => filters.value,
 );
+
+const { topHeight } = getNavBarMetrics();
 
 const scrollToTop = () => void Taro.pageScrollTo({ scrollTop: 0, duration: 0 });
 
@@ -55,7 +58,8 @@ defineExpose({ loadMore });
 <template>
   <view class="browser">
     <!-- 筛选栏固定在顶部；用 fixed 而不是 sticky，组件节点的 display 在各平台不一致，sticky 不可靠 -->
-    <view class="browser__header">
+    <!-- 页面顶部是 NavBar，筛选栏固定在它下面 -->
+    <view class="browser__header" :style="{ top: `${topHeight}px` }">
       <AnimeFilterBar
         :filters="filters"
         :layout="layout"
@@ -83,7 +87,6 @@ defineExpose({ loadMore });
 <style lang="scss">
 .browser__header {
   position: fixed;
-  top: 0;
   right: 0;
   left: 0;
   z-index: 10;

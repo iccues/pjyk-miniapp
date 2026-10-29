@@ -3,10 +3,9 @@ import { useLoad, useReachBottom, useShareAppMessage } from "@tarojs/taro";
 import { ref } from "vue";
 
 import AnimeBrowser from "@/components/AnimeBrowser.vue";
-import HomeFab from "@/components/HomeFab.vue";
+import NavBar from "@/components/NavBar.vue";
 import type { ListLayout } from "@/constants/ui-options";
 import { DEFAULT_FILTERS, describeFilters, type AnimeListFilters } from "@/utils/filters";
-import { hideNativeHomeButton, isEntryPage } from "@/utils/navigation";
 import { parseFilters, parseLayout, toPageQuery } from "@/utils/query";
 import { routes } from "@/utils/routes";
 
@@ -14,7 +13,6 @@ import { routes } from "@/utils/routes";
 const browser = ref<InstanceType<typeof AnimeBrowser>>();
 const initial = ref<{ filters: AnimeListFilters; layout: ListLayout }>();
 const state = ref({ filters: DEFAULT_FILTERS, layout: "grid" as ListLayout });
-const showHome = ref(false);
 
 const onChange = (filters: AnimeListFilters, layout: ListLayout) => {
   state.value = { filters, layout };
@@ -27,9 +25,6 @@ useLoad((options) => {
     layout: parseLayout(query.layout) ?? "grid",
   };
   initial.value = state.value;
-
-  showHome.value = isEntryPage();
-  if (showHome.value) hideNativeHomeButton();
 });
 
 useReachBottom(() => {
@@ -43,6 +38,7 @@ useShareAppMessage(() => ({
 </script>
 
 <template>
+  <NavBar />
   <AnimeBrowser
     v-if="initial"
     ref="browser"
@@ -50,6 +46,4 @@ useShareAppMessage(() => ({
     :initial-layout="initial.layout"
     @change="onChange"
   />
-
-  <HomeFab v-if="showHome" />
 </template>

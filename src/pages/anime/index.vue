@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import Taro, { useLoad, usePageScroll, useShareAppMessage } from "@tarojs/taro";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 import AnimeDetailSkeleton from "@/components/AnimeDetailSkeleton.vue";
 import AnimeShelf from "@/components/AnimeShelf.vue";
 import BottomSheet from "@/components/BottomSheet.vue";
-import DetailNavBar from "@/components/DetailNavBar.vue";
+import NavBar from "@/components/NavBar.vue";
 import PlatformScoreRow from "@/components/PlatformScoreRow.vue";
 import ScoreHelpSheet from "@/components/ScoreHelpSheet.vue";
 import { useRequest } from "@/composables/useRequest";
 import { GetAnimeDetailDocument, GetAnimeListDocument } from "@/graphql/generated/graphql";
 import { request } from "@/graphql/request";
 import { formatInteger, getDisplayTitle } from "@/utils/format";
-import { getNavBarMetrics, isEntryPage, openPage } from "@/utils/navigation";
+import { getNavBarMetrics, openPage } from "@/utils/navigation";
 import { toPageQuery } from "@/utils/query";
 import { routes, type DocName } from "@/utils/routes";
 import { formatSeason, getSeasonOfStartDate } from "@/utils/season";
@@ -20,12 +20,10 @@ import { formatSeason, getSeasonOfStartDate } from "@/utils/season";
 // 头图滚出这么多之后，导航栏切换为白底
 const SOLID_NAV_SCROLL_TOP = 120;
 
-const { statusBarHeight, navBarHeight } = getNavBarMetrics();
-const navHeight = statusBarHeight + navBarHeight;
+const { topHeight: navHeight } = getNavBarMetrics();
 
 const animeId = ref("");
 const invalidId = ref(false);
-const canGoBack = ref(true);
 const scrolled = ref(false);
 const sheet = ref<"score" | "platform">();
 
@@ -103,10 +101,17 @@ const previewCover = () => {
 };
 
 useLoad((options) => {
-  canGoBack.value = !isEntryPage();
   animeId.value = toPageQuery(options).animeId ?? "";
   invalidId.value = !/^\d+$/.test(animeId.value);
   if (!invalidId.value) load();
+});
+
+// 顶栏透明时叠在深色头图上，状态栏文字用白色；顶栏变成白底后换回黑色
+watch(navSolid, (solid) => {
+  Taro.setNavigationBarColor({
+    frontColor: solid ? "#000000" : "#ffffff",
+    backgroundColor: "#ffffff",
+  }).catch(() => {});
 });
 
 // 只在跨过阈值时更新，避免滚动时频繁触发渲染
@@ -123,7 +128,8 @@ useShareAppMessage(() => ({
 </script>
 
 <template>
-  <DetailNavBar :solid="navSolid" :can-go-back="canGoBack" />
+  <!-- 头图从屏幕顶端开始，顶栏叠在上面，不留占位 -->
+  <NavBar :transparent="!navSolid" :placeholder="false" />
 
   <view
     v-if="invalidId || anime === null"

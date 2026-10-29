@@ -3,6 +3,7 @@ import Taro, { useLoad, usePullDownRefresh, useShareAppMessage } from "@tarojs/t
 import { computed } from "vue";
 
 import AnimeShelf from "@/components/AnimeShelf.vue";
+import NavBar from "@/components/NavBar.vue";
 import PageFooter from "@/components/PageFooter.vue";
 import { useRequest } from "@/composables/useRequest";
 import { GetHomeAnimeRowsDocument, type AnimeCardFragment } from "@/graphql/generated/graphql";
@@ -87,6 +88,9 @@ useShareAppMessage(() => ({
 </script>
 
 <template>
+  <!-- 不固定在顶部：开启了下拉刷新，固定的顶栏会挡住下拉时出现的加载提示 -->
+  <NavBar :back="false" :fixed="false" />
+
   <view class="home-page__hero">
     <view class="home-page__hero-title">更全面的动画评分</view>
     <view class="home-page__hero-description">

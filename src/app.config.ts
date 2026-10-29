@@ -8,9 +8,10 @@ export default defineAppConfig({
     "pages/article/index",
   ],
   window: {
-    navigationBarTitleText: "",
+    // 所有页面都不用平台的原生顶栏，返回按钮由页面里的 NavBar 组件提供
+    navigationStyle: "custom",
+    // 关掉原生顶栏后，这一项决定状态栏文字（时间、电量）的颜色
     navigationBarTextStyle: "black",
-    navigationBarBackgroundColor: "#ffffff",
     backgroundColor: "#ffffff",
     backgroundTextStyle: "dark",
   },

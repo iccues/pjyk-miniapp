@@ -26,44 +26,57 @@ export const goHome = () => {
 export const isEntryPage = (): boolean => Taro.getCurrentPages().length <= 1;
 
 export interface NavBarMetrics {
-  /** 状态栏高度，自定义导航栏要从它下面开始 */
+  /** 状态栏高度，顶栏从它下面开始 */
   statusBarHeight: number;
-  /** 导航栏高度，和右上角胶囊按钮垂直居中对齐 */
+  /** 顶栏高度，即右上角胶囊按钮所在的那一行，胶囊按钮在其中垂直居中 */
   navBarHeight: number;
+  /** 状态栏加顶栏，页面顶部总共要让出的高度 */
+  topHeight: number;
+  /** 胶囊按钮的高度，顶栏里的圆形按钮和搜索框与它等高 */
+  menuButtonHeight: number;
+  /** 胶囊按钮右边到屏幕边缘的距离，左上角的圆形按钮离左边同样远，两者左右对称 */
+  menuButtonMargin: number;
+  /** 胶囊按钮左边到屏幕右边缘的距离，顶栏里的内容要在这之前结束；H5 没有胶囊按钮，为 0 */
+  menuButtonInset: number;
 }
 
 let navBarMetrics: NavBarMetrics | undefined;
 
 /**
- * 自定义导航栏的尺寸；胶囊按钮的位置抖音和微信不同，按运行时的实际位置计算
+ * 顶栏的尺寸；胶囊按钮的位置抖音和微信不同，按运行时的实际位置计算
  */
 export const getNavBarMetrics = (): NavBarMetrics => {
   if (navBarMetrics) return navBarMetrics;
 
-  navBarMetrics = { statusBarHeight: 0, navBarHeight: 44 };
   // H5 没有状态栏和胶囊按钮，使用默认尺寸
-  if (process.env.TARO_ENV === "h5") return navBarMetrics;
+  const metrics: NavBarMetrics = {
+    statusBarHeight: 0,
+    navBarHeight: 44,
+    topHeight: 44,
+    menuButtonHeight: 32,
+    menuButtonMargin: 10,
+    menuButtonInset: 0,
+  };
 
-  const { statusBarHeight = 0 } = Taro.getSystemInfoSync();
-  navBarMetrics.statusBarHeight = statusBarHeight;
+  if (process.env.TARO_ENV !== "h5") {
+    const { statusBarHeight = 0, windowWidth } = Taro.getSystemInfoSync();
+    metrics.statusBarHeight = statusBarHeight;
 
-  try {
-    const rect = Taro.getMenuButtonBoundingClientRect();
-    if (rect?.height > 0) {
-      navBarMetrics.navBarHeight = (rect.top - statusBarHeight) * 2 + rect.height;
+    try {
+      const rect = Taro.getMenuButtonBoundingClientRect();
+      if (rect?.height > 0) {
+        metrics.navBarHeight = (rect.top - statusBarHeight) * 2 + rect.height;
+        metrics.menuButtonHeight = rect.height;
+        metrics.menuButtonMargin = windowWidth - rect.right;
+        metrics.menuButtonInset = windowWidth - rect.left;
+      }
+    } catch {
+      // 低版本基础库没有这个接口，使用默认尺寸
     }
-  } catch {
-    // 低版本基础库没有这个接口，使用默认尺寸
+
+    metrics.topHeight = metrics.statusBarHeight + metrics.navBarHeight;
   }
 
-  return navBarMetrics;
-};
-
-/**
- * 隐藏平台在导航栏自动加的"返回首页"按钮，统一使用页面里的按钮
- */
-export const hideNativeHomeButton = () => {
-  if (process.env.TARO_ENV === "h5") return;
-  // 部分平台或低版本基础库没有这个接口，保留平台自带的按钮即可
-  Taro.hideHomeButton?.().catch(() => {});
+  navBarMetrics = metrics;
+  return metrics;
 };

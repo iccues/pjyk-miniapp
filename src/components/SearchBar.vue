@@ -36,10 +36,11 @@ const clear = () => {
 </template>
 
 <style lang="scss">
+/* 高度由外层决定，放在顶栏里时与胶囊按钮等高 */
 .search-bar {
   display: flex;
   align-items: center;
-  height: 40px;
+  height: 100%;
   padding-left: 12px;
   border-radius: 12px;
   background-color: $gray-100;
@@ -47,14 +48,14 @@ const clear = () => {
 
 .search-bar__icon {
   flex-shrink: 0;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .search-bar__input {
   flex: 1;
   min-width: 0;
-  height: 40px;
+  height: 100%;
   padding: 0 8px;
   color: $gray-900;
   font-size: 16px;
@@ -69,8 +70,8 @@ const clear = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 100%;
 }
 
 /* 灰色圆底上画一个 ×，两条线由伪元素旋转得到 */

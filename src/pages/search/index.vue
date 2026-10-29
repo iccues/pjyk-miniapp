@@ -12,6 +12,7 @@ import AnimeCard from "@/components/AnimeCard.vue";
 import AnimeCardSkeleton from "@/components/AnimeCardSkeleton.vue";
 import AnimeList from "@/components/AnimeList.vue";
 import ListToolbar from "@/components/ListToolbar.vue";
+import NavBar from "@/components/NavBar.vue";
 import SearchBar from "@/components/SearchBar.vue";
 import { usePagedAnimeList } from "@/composables/usePagedAnimeList";
 import { useRequest } from "@/composables/useRequest";
@@ -141,9 +142,10 @@ useShareAppMessage(() => ({
 </script>
 
 <template>
-  <view class="search-page__header">
+  <!-- 搜索框放在顶栏里，胶囊按钮的左边 -->
+  <NavBar :back="false">
     <SearchBar v-model="input" v-model:focused="focused" @confirm="searchNow" />
-  </view>
+  </NavBar>
 
   <view v-if="!keyword" class="search-page__explore">
     <view class="search-page__section">
@@ -198,14 +200,6 @@ useShareAppMessage(() => ({
 </template>
 
 <style lang="scss">
-.search-page__header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  padding: 8px $page-gutter;
-  background-color: #fff;
-}
-
 .search-page__explore {
   padding: 8px $page-gutter 32px;
 }
