@@ -1,0 +1,12 @@
+{
+  "miniprogramRoot": "./",
+  "projectname": "pjyk-miniapp",
+  "description": "有希计划抖音小程序",
+  "appid": "touristappid",
+  "setting": {
+    "urlCheck": false,
+    "es6": false,
+    "postcss": false,
+    "minified": false
+  }
+}

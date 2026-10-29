@@ -1,5 +1,4 @@
 /**
- * 小程序只能请求在后台配置过的 HTTPS 域名，本地联调时可在 .env.local 里改成其他地址
+ * 构建时由 .env 中的同名变量替换
  */
-export const GRAPHQL_URL =
-  import.meta.env.VITE_GRAPHQL_URL || "https://www.yukiani.com/api/graphql";
+export const GRAPHQL_URL = process.env.TARO_APP_GRAPHQL_URL;

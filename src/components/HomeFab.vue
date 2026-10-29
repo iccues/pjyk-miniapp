@@ -5,12 +5,12 @@ import { goHome } from "@/utils/navigation";
 <template>
   <!-- 从分享卡片直接打开普通页面时没有上一页，用它回到首页 -->
   <view class="home-fab" hover-class="home-fab--active" @tap="goHome">
-    <image class="icon" src="/static/icons/home-dark.png" mode="aspectFit" />
+    <image class="home-fab__icon" src="/static/icons/home-dark.png" mode="aspectFit" />
     <text>首页</text>
   </view>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .home-fab {
   position: fixed;
   right: $page-gutter;
@@ -32,7 +32,7 @@ import { goHome } from "@/utils/navigation";
   background-color: $gray-100;
 }
 
-.icon {
+.home-fab__icon {
   width: 18px;
   height: 18px;
   margin-right: 6px;

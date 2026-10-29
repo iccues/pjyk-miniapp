@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Taro from "@tarojs/taro";
 import { computed } from "vue";
 
 import { getPlatformConfig } from "@/constants/platforms";
@@ -25,83 +26,86 @@ const details = computed(() => {
 });
 
 // 小程序不能直接打开外部网站，改为复制该平台的条目链接
-const showActions = () => {
+const showActions = async () => {
   const url = animeUrl.value;
   if (!url) return;
 
-  uni.showActionSheet({
-    itemList: [`复制 ${platformConfig.value.name} 条目链接`],
-    success: () => {
-      uni.setClipboardData({
-        data: url,
-        success: () => uni.showToast({ title: "链接已复制", icon: "none" }),
-      });
-    },
-  });
+  try {
+    await Taro.showActionSheet({ itemList: [`复制 ${platformConfig.value.name} 条目链接`] });
+    await Taro.setClipboardData({ data: url });
+    await Taro.showToast({ title: "链接已复制", icon: "none" });
+  } catch {
+    // 取消操作或复制失败，不需要提示
+  }
 };
 </script>
 
 <template>
-  <view class="platform" hover-class="platform--active" @tap="showActions">
-    <view class="head">
-      <image v-if="platformConfig.logo" class="logo" :src="platformConfig.logo" mode="aspectFit" />
-      <text class="name">{{ platformConfig.name }}</text>
-      <text v-if="mapping.normalizedScore != null" class="score">
+  <view class="platform-row" hover-class="platform-row--active" @tap="showActions">
+    <view class="platform-row__head">
+      <image
+        v-if="platformConfig.logo"
+        class="platform-row__logo"
+        :src="platformConfig.logo"
+        mode="aspectFit"
+      />
+      <text class="platform-row__name">{{ platformConfig.name }}</text>
+      <text v-if="mapping.normalizedScore != null" class="platform-row__score">
         {{ mapping.normalizedScore.toFixed(1) }}
       </text>
-      <text v-else class="score score--empty">暂无评分</text>
+      <text v-else class="platform-row__score platform-row__score--empty">暂无评分</text>
     </view>
 
-    <view class="track">
-      <view class="fill" :style="{ width: `${barWidth}%` }" />
+    <view class="platform-row__track">
+      <view class="platform-row__fill" :style="{ width: `${barWidth}%` }" />
     </view>
 
-    <view v-if="details" class="details">{{ details }}</view>
+    <view v-if="details" class="platform-row__details">{{ details }}</view>
   </view>
 </template>
 
-<style lang="scss" scoped>
-.platform {
+<style lang="scss">
+.platform-row {
   padding: 12px 0;
 }
 
-.platform--active {
+.platform-row--active {
   opacity: 0.6;
 }
 
-.head {
+.platform-row__head {
   display: flex;
   align-items: center;
 }
 
-.logo {
+.platform-row__logo {
   flex-shrink: 0;
   width: 20px;
   height: 20px;
   margin-right: 8px;
 }
 
-.name {
+.platform-row__name {
   flex: 1;
   color: $gray-800;
   font-size: 15px;
   font-weight: 600;
 }
 
-.score {
+.platform-row__score {
   color: $indigo-600;
   font-size: 18px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
-.score--empty {
+.platform-row__score--empty {
   color: $gray-400;
   font-size: 12px;
   font-weight: 400;
 }
 
-.track {
+.platform-row__track {
   height: 6px;
   margin-top: 8px;
   overflow: hidden;
@@ -109,13 +113,13 @@ const showActions = () => {
   background-color: $gray-100;
 }
 
-.fill {
+.platform-row__fill {
   height: 100%;
   border-radius: 3px;
   background-image: linear-gradient(to right, $indigo-500, $indigo-600);
 }
 
-.details {
+.platform-row__details {
   margin-top: 6px;
   color: $gray-500;
   font-size: 12px;

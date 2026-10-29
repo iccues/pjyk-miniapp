@@ -1,24 +1,24 @@
 <template>
-  <view class="skeleton">
-    <view class="skeleton-cover" />
-    <view class="skeleton-line" />
-    <view class="skeleton-line skeleton-line--short" />
+  <view class="card-skeleton">
+    <view class="card-skeleton__cover" />
+    <view class="card-skeleton__line" />
+    <view class="card-skeleton__line card-skeleton__line--short" />
   </view>
 </template>
 
-<style lang="scss" scoped>
-@keyframes pulse {
+<style lang="scss">
+@keyframes card-skeleton-pulse {
   50% {
     opacity: 0.5;
   }
 }
 
-.skeleton {
+.card-skeleton {
   width: 100%;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: card-skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.skeleton-cover {
+.card-skeleton__cover {
   width: 100%;
   height: 0;
   padding-top: 140%;
@@ -26,14 +26,14 @@
   background-color: $gray-200;
 }
 
-.skeleton-line {
+.card-skeleton__line {
   height: 14px;
   margin: 8px 4px 0;
   border-radius: 999px;
   background-color: $gray-200;
 }
 
-.skeleton-line--short {
+.card-skeleton__line--short {
   width: 66%;
 }
 </style>

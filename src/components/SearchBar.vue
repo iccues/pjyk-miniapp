@@ -15,11 +15,11 @@ const clear = () => {
 
 <template>
   <view class="search-bar">
-    <image class="icon" src="/static/icons/search.png" mode="aspectFit" />
+    <image class="search-bar__icon" src="/static/icons/search.png" mode="aspectFit" />
     <!-- 输入框使用 16px 字号，避免 iOS 聚焦时页面缩放 -->
     <input
       v-model="keyword"
-      class="input"
+      class="search-bar__input"
       type="text"
       confirm-type="search"
       :placeholder="placeholder"
@@ -29,13 +29,13 @@ const clear = () => {
       @blur="focused = false"
       @confirm="emit('confirm')"
     />
-    <view v-if="keyword" class="clear" @tap="clear">
-      <view class="clear-icon" />
+    <view v-if="keyword" class="search-bar__clear" @tap="clear">
+      <view class="search-bar__clear-icon" />
     </view>
   </view>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .search-bar {
   display: flex;
   align-items: center;
@@ -45,13 +45,13 @@ const clear = () => {
   background-color: $gray-100;
 }
 
-.icon {
+.search-bar__icon {
   flex-shrink: 0;
   width: 18px;
   height: 18px;
 }
 
-.input {
+.search-bar__input {
   flex: 1;
   min-width: 0;
   height: 40px;
@@ -60,7 +60,12 @@ const clear = () => {
   font-size: 16px;
 }
 
-.clear {
+/* H5 的输入框外面包了一层 taro-input-core，里面的 .weui-input 才是真正的输入框，要撑满高度才能垂直居中 */
+.search-bar__input .weui-input {
+  height: 100%;
+}
+
+.search-bar__clear {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,7 +74,7 @@ const clear = () => {
 }
 
 /* 灰色圆底上画一个 ×，两条线由伪元素旋转得到 */
-.clear-icon {
+.search-bar__clear-icon {
   position: relative;
   width: 16px;
   height: 16px;
@@ -77,8 +82,8 @@ const clear = () => {
   background-color: $gray-400;
 }
 
-.clear-icon::before,
-.clear-icon::after {
+.search-bar__clear-icon::before,
+.search-bar__clear-icon::after {
   content: "";
   position: absolute;
   top: 7px;
@@ -90,7 +95,7 @@ const clear = () => {
   transform: rotate(45deg);
 }
 
-.clear-icon::after {
+.search-bar__clear-icon::after {
   transform: rotate(-45deg);
 }
 </style>

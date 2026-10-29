@@ -27,15 +27,15 @@ const onChange = (event: { detail: { value: number | string } }) => {
 
 <template>
   <picker mode="selector" :range="labels" :value="selectedIndex" @change="onChange">
-    <view class="trigger">
+    <view class="year-picker">
       <text>{{ label }}</text>
-      <view class="caret" />
+      <view class="year-picker__caret" />
     </view>
   </picker>
 </template>
 
-<style lang="scss" scoped>
-.trigger {
+<style lang="scss">
+.year-picker {
   display: flex;
   align-items: center;
   height: 32px;
@@ -47,7 +47,7 @@ const onChange = (event: { detail: { value: number | string } }) => {
   font-weight: 600;
 }
 
-.caret {
+.year-picker__caret {
   width: 5px;
   height: 5px;
   margin: -3px 0 0 8px;

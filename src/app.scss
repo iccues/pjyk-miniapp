@@ -1,9 +1,6 @@
-<script setup lang="ts">
-// 应用级生命周期暂时没有需要处理的逻辑，本文件只负责全局样式
-</script>
-
-<style lang="scss">
-page {
+// 页面根节点：小程序里是 page，H5 里是 Taro 生成的 .taro_page
+page,
+.taro_page {
   background-color: #fff;
   color: $gray-900;
   font-family:
@@ -11,4 +8,3 @@ page {
     sans-serif;
   font-size: 15px;
 }
-</style>

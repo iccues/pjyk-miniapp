@@ -1,6 +1,15 @@
-import MarkdownIt from "markdown-it";
-import type Token from "markdown-it/lib/token.mjs";
-import type { Plugin } from "vite";
+// @ts-check
+// webpack 直接加载 loader，不经过编译，所以用 CommonJS 写，类型写在 JSDoc 里
+const MarkdownIt = require("markdown-it");
+
+/**
+ * @typedef {import("markdown-it/lib/token.mjs").default} Token
+ * @typedef {{ type: "text"; text: string }
+ *   | { name: string; attrs?: Record<string, string>; children?: RichTextNode[] }} RichTextNode
+ */
+
+/** @type {MarkdownIt | undefined} */
+let renderer;
 
 /**
  * 构建期把 .md 渲染成 rich-text 的节点数组
@@ -8,28 +17,19 @@ import type { Plugin } from "vite";
  * 各小程序平台对 rich-text 传 HTML 字符串的支持不一致，节点数组是都支持的写法；
  * rich-text 不加载外部样式表，样式全部写成行内 style；
  * 小程序里也跑不了 KaTeX，公式块转成可读的纯文本。
+ *
+ * @param {string} source
  */
-export default function markdown(): Plugin {
-  const md = createRenderer();
-
-  return {
-    name: "pjyk:markdown",
-    transform(source, id) {
-      if (!id.endsWith(".md")) return null;
-
-      const html = `<div style="${ROOT_STYLE}">${md.render(source)}</div>`;
-      return { code: `export default ${JSON.stringify(htmlToNodes(html))};`, map: null };
-    },
-  };
-}
-
-export type RichTextNode =
-  | { type: "text"; text: string }
-  | { name: string; attrs?: Record<string, string>; children?: RichTextNode[] };
+module.exports = function markdownLoader(source) {
+  renderer ??= createRenderer();
+  const html = `<div style="${ROOT_STYLE}">${renderer.render(source)}</div>`;
+  return `export default ${JSON.stringify(htmlToNodes(html))};`;
+};
 
 const VOID_TAGS = new Set(["hr", "br", "img"]);
 
-const ENTITIES: Record<string, string> = {
+/** @type {Record<string, string>} */
+const ENTITIES = {
   "&amp;": "&",
   "&lt;": "<",
   "&gt;": ">",
@@ -39,21 +39,26 @@ const ENTITIES: Record<string, string> = {
 
 /**
  * 解析 markdown-it 输出的 HTML，只处理它会生成的标签、双引号属性和基本实体
+ *
+ * @param {string} html
+ * @returns {RichTextNode[]}
  */
-export function htmlToNodes(html: string): RichTextNode[] {
-  const root: RichTextNode[] = [];
-  const stack: RichTextNode[][] = [root];
+function htmlToNodes(html) {
+  /** @type {RichTextNode[]} */
+  const root = [];
+  /** @type {RichTextNode[][]} */
+  const stack = [root];
   const pattern = /<(\/?)([a-z][a-z0-9]*)((?:\s+[a-z-]+="[^"]*")*)\s*\/?>|([^<]+)/gi;
 
   for (const [, closing, tag, rawAttrs, text] of html.matchAll(pattern)) {
-    const children = stack[stack.length - 1]!;
+    const children = /** @type {RichTextNode[]} */ (stack[stack.length - 1]);
 
     if (text !== undefined) {
       // 块级标签之间的换行不是正文内容
       if (/^\s*$/.test(text) && text.includes("\n")) continue;
       children.push({
         type: "text",
-        text: text.replace(/&(amp|lt|gt|quot|#39);/g, (e) => ENTITIES[e]!),
+        text: text.replace(/&(amp|lt|gt|quot|#39);/g, (e) => ENTITIES[e] ?? e),
       });
       continue;
     }
@@ -63,13 +68,14 @@ export function htmlToNodes(html: string): RichTextNode[] {
       continue;
     }
 
-    const attrs: Record<string, string> = {};
-    for (const [, key, value] of rawAttrs!.matchAll(/([a-z-]+)="([^"]*)"/gi)) {
-      attrs[key!] = value!;
+    /** @type {Record<string, string>} */
+    const attrs = {};
+    for (const [, key = "", value = ""] of (rawAttrs ?? "").matchAll(/([a-z-]+)="([^"]*)"/gi)) {
+      attrs[key] = value;
     }
 
-    const name = tag!.toLowerCase();
-    const node = { name, attrs, children: [] as RichTextNode[] };
+    const name = (tag ?? "").toLowerCase();
+    const node = { name, attrs, children: /** @type {RichTextNode[]} */ ([]) };
     children.push(node);
     if (!VOID_TAGS.has(name)) stack.push(node.children);
   }
@@ -79,7 +85,8 @@ export function htmlToNodes(html: string): RichTextNode[] {
 
 const ROOT_STYLE = "font-size:15px;line-height:1.75;color:#364153;word-break:break-word";
 
-const TAG_STYLES: Record<string, string> = {
+/** @type {Record<string, string>} */
+const TAG_STYLES = {
   h1: "margin:0 0 16px;font-size:22px;line-height:1.4;font-weight:700;color:#101828",
   h2: "margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid #e5e7eb;font-size:18px;line-height:1.4;font-weight:700;color:#101828",
   h3: "margin:20px 0 8px;font-size:16px;line-height:1.4;font-weight:600;color:#1e2939",
@@ -108,8 +115,9 @@ function createRenderer() {
   const md = new MarkdownIt();
 
   md.block.ruler.before("fence", "math_block", (state, startLine, endLine, silent) => {
-    const lineText = (line: number) =>
-      state.src.slice(state.bMarks[line]! + state.tShift[line]!, state.eMarks[line]).trim();
+    /** @param {number} line */
+    const lineText = (line) =>
+      state.src.slice(state.bMarks[line] + state.tShift[line], state.eMarks[line]).trim();
 
     if (lineText(startLine) !== "$$") return false;
     if (silent) return true;
@@ -119,14 +127,15 @@ function createRenderer() {
 
     const token = state.push("math_block", "", 0);
     token.block = true;
-    token.content = state.getLines(startLine + 1, closeLine, state.tShift[startLine]!, false);
+    token.content = state.getLines(startLine + 1, closeLine, state.tShift[startLine], false);
     token.map = [startLine, closeLine + 1];
     state.line = closeLine + 1;
     return true;
   });
 
   md.core.ruler.push("inline_style", (state) => {
-    const apply = (tokens: Token[]) => {
+    /** @param {Token[]} tokens */
+    const apply = (tokens) => {
       for (const token of tokens) {
         const style = TAG_STYLES[token.tag];
         if (style && token.nesting !== -1) {
@@ -141,14 +150,15 @@ function createRenderer() {
   });
 
   md.renderer.rules.math_block = (tokens, idx) =>
-    `<p style="${MATH_STYLE}">${md.utils.escapeHtml(texToText(tokens[idx]!.content))}</p>\n`;
+    `<p style="${MATH_STYLE}">${md.utils.escapeHtml(texToText(tokens[idx]?.content ?? ""))}</p>\n`;
   md.renderer.rules.link_open = () => `<span style="${LINK_STYLE}">`;
   md.renderer.rules.link_close = () => "</span>";
 
   return md;
 }
 
-const TEX_SYMBOLS: Record<string, string> = {
+/** @type {Record<string, string>} */
+const TEX_SYMBOLS = {
   times: "×",
   cdot: "·",
   pm: "±",
@@ -157,25 +167,30 @@ const TEX_SYMBOLS: Record<string, string> = {
   sum: "Σ",
 };
 
-const SUBSCRIPTS: Record<string, string> = {
+/** @type {Record<string, string>} */
+const SUBSCRIPTS = {
   i: "ᵢ",
   j: "ⱼ",
-  "0": "₀",
-  "1": "₁",
-  "2": "₂",
-  "3": "₃",
+  0: "₀",
+  1: "₁",
+  2: "₂",
+  3: "₃",
 };
 
 /**
  * 把文档里用到的 TeX 子集转成纯文本，例如 \frac{z + 3}{6} \times 100 → (z + 3) / 6 × 100
  *
  * 只覆盖 \frac、\text、上下标和常用符号，遇到不认识的命令原样保留命令名。
+ *
+ * @param {string} tex
+ * @returns {string}
  */
-export function texToText(tex: string): string {
+function texToText(tex) {
   let i = 0;
 
   // 读取一个参数：花括号分组返回组内原文，否则返回单个字符
-  const readArg = (): string => {
+  /** @returns {string} */
+  const readArg = () => {
     while (tex[i] === " ") i++;
     if (tex[i] !== "{") return tex[i++] ?? "";
 
@@ -191,7 +206,7 @@ export function texToText(tex: string): string {
 
   let out = "";
   while (i < tex.length) {
-    const ch = tex[i]!;
+    const ch = tex.charAt(i);
 
     if (ch === "\\") {
       const name = /^[a-zA-Z]+/.exec(tex.slice(i + 1))?.[0] ?? tex[i + 1] ?? "";
@@ -220,8 +235,12 @@ export function texToText(tex: string): string {
   return out.replace(/\s+/g, " ").replace(/ - /g, " − ").trim();
 }
 
-// 分子分母在括号外还有运算符时加括号，避免除号的作用范围产生歧义
-function wrapOperand(text: string): string {
+/**
+ * 分子分母在括号外还有运算符时加括号，避免除号的作用范围产生歧义
+ *
+ * @param {string} text
+ */
+function wrapOperand(text) {
   let depth = 0;
   for (const ch of text) {
     if (ch === "(") depth++;
@@ -231,7 +250,8 @@ function wrapOperand(text: string): string {
   return text;
 }
 
-function toSubscript(text: string): string {
+/** @param {string} text */
+function toSubscript(text) {
   const chars = [...text];
   return chars.every((ch) => ch in SUBSCRIPTS)
     ? chars.map((ch) => SUBSCRIPTS[ch]).join("")

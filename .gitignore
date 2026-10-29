@@ -8,3 +8,7 @@ dist
 *.local
 *.log
 .DS_Store
+
+# Taro 编译缓存
+.swc
+.temp

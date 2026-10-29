@@ -13,7 +13,7 @@ export type AnimeListItem = AnimeListFragment["content"][number];
 export function usePagedAnimeList(fetchPage: (pageNumber: number) => Promise<AnimeListFragment>) {
   const items = shallowRef<AnimeListItem[]>([]);
   const total = ref(0);
-  // 页面在 onLoad 里才发起首次请求，初始即视为加载中，避免先闪一下"暂无数据"
+  // 页面在 useLoad 里才发起首次请求，初始即视为加载中，避免先闪一下"暂无数据"
   const loading = ref(true);
   const error = ref<string>();
   const finished = ref(false);

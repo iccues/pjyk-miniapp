@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Taro from "@tarojs/taro";
 import { computed } from "vue";
 
 import { getNavBarMetrics, goHome } from "@/utils/navigation";
@@ -20,7 +21,7 @@ const icon = computed(() => {
 
 const onLeftTap = () => {
   if (props.canGoBack) {
-    uni.navigateBack();
+    void Taro.navigateBack();
   } else {
     goHome();
   }
@@ -29,25 +30,25 @@ const onLeftTap = () => {
 
 <template>
   <view
-    class="nav"
-    :class="{ 'nav--solid': solid }"
+    class="detail-nav"
+    :class="{ 'detail-nav--solid': solid }"
     :style="{ paddingTop: `${statusBarHeight}px` }"
   >
-    <view class="bar" :style="{ height: `${navBarHeight}px` }">
+    <view class="detail-nav__bar" :style="{ height: `${navBarHeight}px` }">
       <view
-        class="left"
-        hover-class="left--active"
+        class="detail-nav__left"
+        hover-class="detail-nav__left--active"
         :style="{ height: `${navBarHeight}px` }"
         @tap="onLeftTap"
       >
-        <image class="icon" :src="icon" mode="aspectFit" />
+        <image class="detail-nav__icon" :src="icon" mode="aspectFit" />
       </view>
     </view>
   </view>
 </template>
 
-<style lang="scss" scoped>
-.nav {
+<style lang="scss">
+.detail-nav {
   position: fixed;
   top: 0;
   right: 0;
@@ -56,16 +57,16 @@ const onLeftTap = () => {
   transition: background-color 0.2s;
 }
 
-.nav--solid {
+.detail-nav--solid {
   background-color: #fff;
   box-shadow: 0 1px 0 $gray-100;
 }
 
-.bar {
+.detail-nav__bar {
   position: relative;
 }
 
-.left {
+.detail-nav__left {
   position: absolute;
   top: 0;
   left: 4px;
@@ -76,11 +77,11 @@ const onLeftTap = () => {
   border-radius: 22px;
 }
 
-.left--active {
+.detail-nav__left--active {
   opacity: 0.6;
 }
 
-.icon {
+.detail-nav__icon {
   width: 22px;
   height: 22px;
 }

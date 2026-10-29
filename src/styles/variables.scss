@@ -1,5 +1,5 @@
 /*
- * uni-app 会把本文件自动注入每个 lang="scss" 的样式块，这里只放变量，不放会产出 CSS 的规则。
+ * config/index.ts 的 sass.resource 会把本文件注入每个 scss 样式块，这里只放变量，不放会产出 CSS 的规则。
  * 配色取自 pjyk 前台（web/apps/client）使用的 Tailwind 色板，小程序部分机型不支持 oklch，统一换算成十六进制。
  */
 

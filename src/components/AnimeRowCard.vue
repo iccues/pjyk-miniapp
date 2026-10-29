@@ -35,33 +35,39 @@ const openDetail = () => {
   <view class="row-card" hover-class="row-card--active" @tap="openDetail">
     <view
       v-if="rank"
-      class="rank"
-      :class="{ 'rank--top1': rank === 1, 'rank--top2': rank === 2, 'rank--top3': rank === 3 }"
+      class="row-card__rank"
+      :class="{
+        'row-card__rank--top1': rank === 1,
+        'row-card__rank--top2': rank === 2,
+        'row-card__rank--top3': rank === 3,
+      }"
     >
       {{ rank }}
     </view>
 
     <image
       v-if="anime.coverImage"
-      class="cover"
+      class="row-card__cover"
       :src="anime.coverImage"
       mode="aspectFill"
-      lazy-load
+      :lazy-load="true"
     />
-    <view v-else class="cover cover--empty" />
+    <view v-else class="row-card__cover row-card__cover--empty" />
 
-    <view class="info">
-      <view class="title">{{ title }}</view>
-      <view v-if="nativeTitle" class="native-title">{{ nativeTitle }}</view>
-      <view v-if="meta" class="meta">{{ meta }}</view>
+    <view class="row-card__info">
+      <view class="row-card__title">{{ title }}</view>
+      <view v-if="nativeTitle" class="row-card__native-title">{{ nativeTitle }}</view>
+      <view v-if="meta" class="row-card__meta">{{ meta }}</view>
     </view>
 
-    <view v-if="anime.averageScore" class="score">{{ anime.averageScore.toFixed(1) }}</view>
-    <view v-else class="score score--empty">暂无评分</view>
+    <view v-if="anime.averageScore" class="row-card__score">{{
+      anime.averageScore.toFixed(1)
+    }}</view>
+    <view v-else class="row-card__score row-card__score--empty">暂无评分</view>
   </view>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .row-card {
   display: flex;
   align-items: center;
@@ -72,7 +78,7 @@ const openDetail = () => {
   opacity: 0.7;
 }
 
-.rank {
+.row-card__rank {
   flex-shrink: 0;
   width: 28px;
   margin-right: 8px;
@@ -82,19 +88,19 @@ const openDetail = () => {
   text-align: center;
 }
 
-.rank--top1 {
+.row-card__rank--top1 {
   color: $rank-gold;
 }
 
-.rank--top2 {
+.row-card__rank--top2 {
   color: $rank-silver;
 }
 
-.rank--top3 {
+.row-card__rank--top3 {
   color: $rank-bronze;
 }
 
-.cover {
+.row-card__cover {
   flex-shrink: 0;
   width: 56px;
   height: 78px;
@@ -102,39 +108,39 @@ const openDetail = () => {
   background-color: $gray-200;
 }
 
-.info {
+.row-card__info {
   flex: 1;
   min-width: 0;
   margin: 0 12px;
 }
 
-.title,
-.native-title,
-.meta {
+.row-card__title,
+.row-card__native-title,
+.row-card__meta {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.title {
+.row-card__title {
   color: $gray-900;
   font-size: 15px;
   font-weight: 600;
 }
 
-.native-title {
+.row-card__native-title {
   margin-top: 2px;
   color: $gray-500;
   font-size: 12px;
 }
 
-.meta {
+.row-card__meta {
   margin-top: 6px;
   color: $gray-400;
   font-size: 12px;
 }
 
-.score {
+.row-card__score {
   flex-shrink: 0;
   color: $indigo-600;
   font-size: 22px;
@@ -142,7 +148,7 @@ const openDetail = () => {
   font-variant-numeric: tabular-nums;
 }
 
-.score--empty {
+.row-card__score--empty {
   color: $gray-400;
   font-size: 12px;
   font-weight: 400;

@@ -21,8 +21,8 @@ const select = (option: SelectOption<T>) => {
     <view
       v-for="option in options"
       :key="option.label"
-      class="option"
-      :class="{ 'option--active': option.value === value }"
+      class="segmented__option"
+      :class="{ 'segmented__option--active': option.value === value }"
       @tap="select(option)"
     >
       {{ option.label }}
@@ -30,7 +30,7 @@ const select = (option: SelectOption<T>) => {
   </view>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .segmented {
   display: flex;
   flex-shrink: 0;
@@ -39,7 +39,7 @@ const select = (option: SelectOption<T>) => {
   background-color: $gray-100;
 }
 
-.option {
+.segmented__option {
   height: 26px;
   padding: 0 10px;
   border-radius: 7px;
@@ -49,18 +49,18 @@ const select = (option: SelectOption<T>) => {
   white-space: nowrap;
 }
 
-.option--active {
+.segmented__option--active {
   background-color: #fff;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.12);
   color: $gray-900;
   font-weight: 600;
 }
 
-.segmented--disabled .option {
+.segmented--disabled .segmented__option {
   color: $gray-300;
 }
 
-.segmented--disabled .option--active {
+.segmented--disabled .segmented__option--active {
   box-shadow: none;
   color: $gray-400;
 }

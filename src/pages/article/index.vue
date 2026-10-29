@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onLoad, onShareAppMessage } from "@dcloudio/uni-app";
+import Taro, { useLoad, useShareAppMessage } from "@tarojs/taro";
 import { computed, ref } from "vue";
 
 import HomeFab from "@/components/HomeFab.vue";
@@ -24,10 +24,10 @@ const showHome = ref(false);
 
 // 文档之间互相切换时替换当前页，避免页面栈越叠越深
 const switchDoc = (name: DocName) => {
-  if (name !== current.value) uni.redirectTo({ url: routes.article(name) });
+  if (name !== current.value) void Taro.redirectTo({ url: routes.article(name) });
 };
 
-onLoad((options) => {
+useLoad((options) => {
   const name = toPageQuery(options).name as DocName;
   if (DOC_NAMES.includes(name)) current.value = name;
 
@@ -35,22 +35,22 @@ onLoad((options) => {
   if (showHome.value) hideNativeHomeButton();
 });
 
-onShareAppMessage(() => ({
+useShareAppMessage(() => ({
   title: `${doc.value.title} - 有希计划`,
   path: routes.article(current.value),
 }));
 </script>
 
 <template>
-  <view class="page" :class="{ 'page--with-home': showHome }">
+  <view class="article-page" :class="{ 'article-page--with-home': showHome }">
     <rich-text :nodes="doc.nodes" />
 
-    <view class="nav">
+    <view class="article-page__nav">
       <view
         v-for="name in DOC_NAMES"
         :key="name"
-        class="nav-item"
-        :class="{ 'nav-item--active': name === current }"
+        class="article-page__nav-item"
+        :class="{ 'article-page__nav-item--active': name === current }"
         @tap="switchDoc(name)"
       >
         {{ DOCS[name].label }}
@@ -61,17 +61,17 @@ onShareAppMessage(() => ({
   <HomeFab v-if="showHome" />
 </template>
 
-<style lang="scss" scoped>
-.page {
+<style lang="scss">
+.article-page {
   padding: 24px $page-gutter 40px;
 }
 
 /* 给右下角的"首页"按钮留出位置 */
-.page--with-home {
+.article-page--with-home {
   padding-bottom: 96px;
 }
 
-.nav {
+.article-page__nav {
   display: flex;
   justify-content: center;
   margin-top: 32px;
@@ -79,7 +79,7 @@ onShareAppMessage(() => ({
   border-top: 1px solid $gray-200;
 }
 
-.nav-item {
+.article-page__nav-item {
   margin: 0 6px;
   padding: 6px 12px;
   border-radius: 8px;
@@ -87,7 +87,7 @@ onShareAppMessage(() => ({
   font-size: 14px;
 }
 
-.nav-item--active {
+.article-page__nav-item--active {
   background-color: $gray-100;
   color: $gray-900;
   font-weight: 600;

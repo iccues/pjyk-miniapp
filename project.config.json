@@ -1,0 +1,14 @@
+{
+  "miniprogramRoot": "./",
+  "projectname": "pjyk-miniapp",
+  "description": "有希计划微信小程序",
+  "appid": "touristappid",
+  "setting": {
+    "urlCheck": false,
+    "es6": false,
+    "enhance": false,
+    "postcss": false,
+    "minified": false
+  },
+  "compileType": "miniprogram"
+}

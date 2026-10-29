@@ -5,7 +5,7 @@ import { applyFilterChanges, type AnimeListFilters } from "./filters";
 import { EARLIEST_YEAR } from "./season";
 
 /**
- * 页面 onLoad 收到的参数，值可能经过 encodeURIComponent
+ * 页面 useLoad 收到的参数，值可能经过 encodeURIComponent
  *
  * 分享卡片、视频挂载都会带参数直接打开页面，解析时对非法值一律回退到默认值。
  */

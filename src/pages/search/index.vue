@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { onHide, onLoad, onReachBottom, onShareAppMessage, onShow } from "@dcloudio/uni-app";
+import Taro, {
+  useDidHide,
+  useDidShow,
+  useLoad,
+  useReachBottom,
+  useShareAppMessage,
+} from "@tarojs/taro";
 import { computed, ref, watch } from "vue";
 
 import AnimeCard from "@/components/AnimeCard.vue";
@@ -42,7 +48,7 @@ const { items, total, loading, finished, error, clear, reset, loadMore, retry } 
   },
 );
 
-const scrollToTop = () => uni.pageScrollTo({ scrollTop: 0, duration: 0 });
+const scrollToTop = () => void Taro.pageScrollTo({ scrollTop: 0, duration: 0 });
 
 const search = (value: string) => {
   if (value === keyword.value) return;
@@ -116,7 +122,7 @@ const openDoc = (name: DocName) => {
   openPage(routes.article(name));
 };
 
-onLoad((options) => {
+useLoad((options) => {
   const query = toPageQuery(options);
   layout.value = parseLayout(query.layout) ?? layout.value;
 
@@ -131,40 +137,40 @@ onLoad((options) => {
 });
 
 // 切到搜索页且还没有搜索词时，直接弹出键盘
-onShow(() => {
+useDidShow(() => {
   if (!keyword.value) focused.value = true;
 });
 
-onHide(() => {
+useDidHide(() => {
   focused.value = false;
 });
 
-onReachBottom(() => {
+useReachBottom(() => {
   if (keyword.value) loadMore();
 });
 
-onShareAppMessage(() => ({
+useShareAppMessage(() => ({
   title: keyword.value ? `搜索"${keyword.value}" - 有希计划` : "有希计划 - 更全面的动画评分",
   path: routes.search({ keyword: keyword.value, layout: layout.value }),
 }));
 </script>
 
 <template>
-  <view class="header">
+  <view class="search-page__header">
     <SearchBar v-model="input" v-model:focused="focused" @confirm="searchNow" />
   </view>
 
-  <view v-if="!keyword" class="explore">
-    <view class="section">
-      <view class="section-title">
+  <view v-if="!keyword" class="search-page__explore">
+    <view class="search-page__section">
+      <view class="search-page__section-title">
         <text>本季热门</text>
-        <text class="section-subtitle">{{ formatSeason(currentSeason) }}</text>
+        <text class="search-page__section-subtitle">{{ formatSeason(currentSeason) }}</text>
       </view>
 
-      <view v-if="hot.error.value && !hot.data.value" class="hot-error" @tap="hot.run">
+      <view v-if="hot.error.value && !hot.data.value" class="search-page__hot-error" @tap="hot.run">
         {{ hot.error.value }}，点击重试
       </view>
-      <view v-else class="hot-grid">
+      <view v-else class="search-page__hot-grid">
         <template v-if="hot.data.value">
           <view v-for="anime in hot.data.value" :key="anime.animeId">
             <AnimeCard :anime="anime" />
@@ -178,14 +184,14 @@ onShareAppMessage(() => ({
       </view>
     </view>
 
-    <view class="section">
-      <view class="section-title">按季度浏览</view>
-      <view class="chips">
+    <view class="search-page__section">
+      <view class="search-page__section-title">按季度浏览</view>
+      <view class="search-page__chips">
         <view
           v-for="item in browseSeasons"
           :key="item.id"
-          class="chip"
-          hover-class="chip--active"
+          class="search-page__chip"
+          hover-class="search-page__chip--active"
           @tap="openSeason(item.key)"
         >
           {{ item.label }}
@@ -193,12 +199,12 @@ onShareAppMessage(() => ({
       </view>
     </view>
 
-    <view class="links">
+    <view class="search-page__links">
       <view
         v-for="link in DOC_LINKS"
         :key="link.name"
-        class="link"
-        hover-class="link--active"
+        class="search-page__link"
+        hover-class="search-page__link--active"
         @tap="openDoc(link.name)"
       >
         {{ link.label }}
@@ -206,7 +212,7 @@ onShareAppMessage(() => ({
     </view>
   </view>
 
-  <view v-else class="results">
+  <view v-else class="search-page__results">
     <ListToolbar :summary="summary" :layout="layout" @update:layout="changeLayout" />
     <AnimeList
       :items="items"
@@ -221,25 +227,24 @@ onShareAppMessage(() => ({
   </view>
 </template>
 
-<style lang="scss" scoped>
-/* H5 下页面顶部有模拟导航栏，--window-top 是它的高度；小程序里该变量不存在，回退为 0 */
-.header {
+<style lang="scss">
+.search-page__header {
   position: sticky;
-  top: var(--window-top, 0px);
+  top: 0;
   z-index: 10;
   padding: 8px $page-gutter;
   background-color: #fff;
 }
 
-.explore {
+.search-page__explore {
   padding: 8px $page-gutter 32px;
 }
 
-.section + .section {
+.search-page__section + .search-page__section {
   margin-top: 28px;
 }
 
-.section-title {
+.search-page__section-title {
   display: flex;
   align-items: baseline;
   margin-bottom: 12px;
@@ -248,34 +253,34 @@ onShareAppMessage(() => ({
   font-weight: 700;
 }
 
-.section-subtitle {
+.search-page__section-subtitle {
   margin-left: 8px;
   color: $gray-400;
   font-size: 13px;
   font-weight: 400;
 }
 
-.hot-grid {
+.search-page__hot-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: 10px;
   row-gap: 16px;
 }
 
-.hot-error {
+.search-page__hot-error {
   padding: 24px 0;
   color: $red-600;
   font-size: 14px;
   text-align: center;
 }
 
-.chips {
+.search-page__chips {
   display: flex;
   flex-wrap: wrap;
   margin: -4px;
 }
 
-.chip {
+.search-page__chip {
   margin: 4px;
   padding: 7px 14px;
   border-radius: 16px;
@@ -284,17 +289,17 @@ onShareAppMessage(() => ({
   font-size: 14px;
 }
 
-.chip--active {
+.search-page__chip--active {
   background-color: $gray-200;
 }
 
-.links {
+.search-page__links {
   display: flex;
   justify-content: center;
   margin-top: 40px;
 }
 
-.link {
+.search-page__link {
   margin: 0 4px;
   padding: 4px 8px;
   border-radius: 6px;
@@ -302,11 +307,11 @@ onShareAppMessage(() => ({
   font-size: 13px;
 }
 
-.link--active {
+.search-page__link--active {
   background-color: $gray-100;
 }
 
-.results {
+.search-page__results {
   padding: 0 $page-gutter;
 }
 </style>

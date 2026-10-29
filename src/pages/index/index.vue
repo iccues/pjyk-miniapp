@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onLoad, onPullDownRefresh, onShareAppMessage } from "@dcloudio/uni-app";
+import Taro, { useLoad, usePullDownRefresh, useShareAppMessage } from "@tarojs/taro";
 import { computed } from "vue";
 
 import AnimeShelf from "@/components/AnimeShelf.vue";
@@ -71,42 +71,50 @@ const openDoc = (name: DocName) => {
   openPage(routes.article(name));
 };
 
-onLoad(() => {
+useLoad(() => {
   run();
 });
 
-onPullDownRefresh(async () => {
+usePullDownRefresh(async () => {
   await run();
-  uni.stopPullDownRefresh();
+  Taro.stopPullDownRefresh();
 });
 
-onShareAppMessage(() => ({
+useShareAppMessage(() => ({
   title: "有希计划 - 更全面的动画评分",
   path: routes.home(),
 }));
 </script>
 
 <template>
-  <view class="hero">
-    <view class="hero-title">更全面的动画评分</view>
-    <view class="hero-description">
+  <view class="home-page__hero">
+    <view class="home-page__hero-title">更全面的动画评分</view>
+    <view class="home-page__hero-description">
       有希计划整合 Bangumi、MyAnimeList、AniList 的评分与热度数据，归一化后给出统一的综合评价。
     </view>
 
-    <view class="quick-links">
-      <view class="quick-link" hover-class="quick-link--active" @tap="openAllAnime">
+    <view class="home-page__quick-links">
+      <view
+        class="home-page__quick-link"
+        hover-class="home-page__quick-link--active"
+        @tap="openAllAnime"
+      >
         全部动画
       </view>
-      <view class="quick-link" hover-class="quick-link--active" @tap="openDoc('metric')">
+      <view
+        class="home-page__quick-link"
+        hover-class="home-page__quick-link--active"
+        @tap="openDoc('metric')"
+      >
         评分说明
       </view>
     </view>
   </view>
 
-  <view v-if="error && !data" class="error" @tap="run">{{ error }}，点击重试</view>
+  <view v-if="error && !data" class="home-page__error" @tap="run">{{ error }}，点击重试</view>
 
-  <view v-else class="rows">
-    <view v-for="row in rows" :key="row.key" class="row">
+  <view v-else class="home-page__rows">
+    <view v-for="row in rows" :key="row.key" class="home-page__row">
       <AnimeShelf
         :title="row.title"
         :anime-list="row.animeList"
@@ -119,33 +127,33 @@ onShareAppMessage(() => ({
   <PageFooter />
 </template>
 
-<style lang="scss" scoped>
-.hero {
+<style lang="scss">
+.home-page__hero {
   padding: 32px $page-gutter 8px;
   text-align: center;
 }
 
-.hero-title {
+.home-page__hero-title {
   color: $gray-900;
   font-size: 26px;
   font-weight: 700;
   line-height: 1.25;
 }
 
-.hero-description {
+.home-page__hero-description {
   margin-top: 12px;
   color: $gray-600;
   font-size: 15px;
   line-height: 1.65;
 }
 
-.quick-links {
+.home-page__quick-links {
   display: flex;
   justify-content: center;
   margin-top: 16px;
 }
 
-.quick-link {
+.home-page__quick-link {
   margin: 0 2px;
   padding: 6px 12px;
   border-radius: 8px;
@@ -154,19 +162,19 @@ onShareAppMessage(() => ({
   font-weight: 500;
 }
 
-.quick-link--active {
+.home-page__quick-link--active {
   background-color: $gray-200;
 }
 
-.rows {
+.home-page__rows {
   padding-top: 20px;
 }
 
-.row + .row {
+.home-page__row + .home-page__row {
   margin-top: 32px;
 }
 
-.error {
+.home-page__error {
   padding: 40px $page-gutter;
   color: $red-600;
   font-size: 15px;

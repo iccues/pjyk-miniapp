@@ -4,48 +4,48 @@ defineProps<{ topOffset: number }>();
 </script>
 
 <template>
-  <view class="skeleton">
-    <view class="hero" :style="{ paddingTop: `${topOffset + 8}px` }">
-      <view class="cover" />
-      <view class="info">
-        <view class="bar bar--title" />
-        <view class="bar bar--line" />
-        <view class="bar bar--short" />
+  <view class="detail-skeleton">
+    <view class="detail-skeleton__hero" :style="{ paddingTop: `${topOffset + 8}px` }">
+      <view class="detail-skeleton__cover" />
+      <view class="detail-skeleton__info">
+        <view class="detail-skeleton__bar detail-skeleton__bar--title" />
+        <view class="detail-skeleton__bar detail-skeleton__bar--line" />
+        <view class="detail-skeleton__bar detail-skeleton__bar--short" />
       </view>
     </view>
 
-    <view class="body">
-      <view class="stats">
-        <view class="stat" />
-        <view class="stat" />
+    <view class="detail-skeleton__body">
+      <view class="detail-skeleton__stats">
+        <view class="detail-skeleton__stat" />
+        <view class="detail-skeleton__stat" />
       </view>
-      <view class="bar bar--section" />
-      <view v-for="index in 3" :key="index" class="platform">
-        <view class="bar bar--line" />
-        <view class="bar bar--track" />
+      <view class="detail-skeleton__bar detail-skeleton__bar--section" />
+      <view v-for="index in 3" :key="index" class="detail-skeleton__platform">
+        <view class="detail-skeleton__bar detail-skeleton__bar--line" />
+        <view class="detail-skeleton__bar detail-skeleton__bar--track" />
       </view>
     </view>
   </view>
 </template>
 
-<style lang="scss" scoped>
-@keyframes pulse {
+<style lang="scss">
+@keyframes detail-skeleton-pulse {
   50% {
     opacity: 0.5;
   }
 }
 
-.skeleton {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.detail-skeleton {
+  animation: detail-skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.hero {
+.detail-skeleton__hero {
   display: flex;
   padding: 0 $page-gutter 36px;
   background-color: $gray-100;
 }
 
-.cover {
+.detail-skeleton__cover {
   flex-shrink: 0;
   width: 112px;
   height: 157px;
@@ -53,47 +53,47 @@ defineProps<{ topOffset: number }>();
   background-color: $gray-200;
 }
 
-.info {
+.detail-skeleton__info {
   flex: 1;
   margin-left: 16px;
   padding-top: 8px;
 }
 
-.bar {
+.detail-skeleton__bar {
   height: 14px;
   border-radius: 999px;
   background-color: $gray-200;
 }
 
-.bar + .bar {
+.detail-skeleton__bar + .detail-skeleton__bar {
   margin-top: 12px;
 }
 
-.bar--title {
+.detail-skeleton__bar--title {
   width: 80%;
   height: 22px;
 }
 
-.bar--line {
+.detail-skeleton__bar--line {
   width: 60%;
 }
 
-.bar--short {
+.detail-skeleton__bar--short {
   width: 40%;
 }
 
-.body {
+.detail-skeleton__body {
   margin-top: -16px;
   padding: 20px $page-gutter 0;
   border-radius: 20px 20px 0 0;
   background-color: #fff;
 }
 
-.stats {
+.detail-skeleton__stats {
   display: flex;
 }
 
-.stat {
+.detail-skeleton__stat {
   width: 96px;
   height: 52px;
   margin-right: 24px;
@@ -101,17 +101,17 @@ defineProps<{ topOffset: number }>();
   background-color: $gray-100;
 }
 
-.bar--section {
+.detail-skeleton__bar--section {
   width: 120px;
   height: 18px;
   margin-top: 32px;
 }
 
-.platform {
+.detail-skeleton__platform {
   margin-top: 20px;
 }
 
-.bar--track {
+.detail-skeleton__bar--track {
   width: 100%;
   height: 6px;
   margin-top: 10px;

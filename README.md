@@ -1,6 +1,6 @@
 # pjyk-miniapp
 
-有希计划（Project Yuki）小程序，使用 uni-app（Vue 3）编写，同一份代码编译为抖音小程序（`mp-toutiao`）和微信小程序（`mp-weixin`），以抖音端为主。数据来自有希计划的线上 GraphQL 接口，页面和视觉参考 [pjyk](https://github.com/iccues/pjyk) 的前台 `web/apps/client`。
+有希计划（Project Yuki）小程序，使用 [Taro](https://docs.taro.zone)（Vue 3）编写，同一份代码编译为抖音小程序（`tt`）和微信小程序（`weapp`），以抖音端为主。数据来自有希计划的线上 GraphQL 接口，页面和视觉参考 [pjyk](https://github.com/iccues/pjyk) 的前台 `web/apps/client`。
 
 ## 页面
 
@@ -52,18 +52,18 @@ corepack enable
 
 ```bash
 pnpm install
-pnpm dev:mp-toutiao
+pnpm dev:tt
 ```
 
-用抖音开发者工具导入 `dist/dev/mp-toutiao`。微信端用 `pnpm dev:mp-weixin`，在微信开发者工具中导入 `dist/dev/mp-weixin`。
+用抖音开发者工具导入 `dist/tt`。微信端用 `pnpm dev:weapp`，在微信开发者工具中导入 `dist/weapp`。
 
 发布构建：
 
 ```bash
-pnpm build:mp-toutiao
+pnpm build:tt
 ```
 
-产物在 `dist/build/mp-toutiao`（微信端为 `build:mp-weixin` 和 `dist/build/mp-weixin`）。`pnpm build` 会先做类型检查，再依次构建两个平台。
+产物同样在 `dist/tt`（微信端为 `build:weapp` 和 `dist/weapp`），开发和发布构建输出到同一个目录。`pnpm build` 会先做类型检查，再依次构建两个平台。
 
 提交前可运行：
 
@@ -73,13 +73,13 @@ pnpm fmt:check && pnpm lint && pnpm type-check
 
 ### 浏览器预览
 
-`dev:h5` 可以在浏览器里预览页面，适合调样式；最终效果以开发者工具和真机为准。H5 下需要让请求走开发服务器代理：
+`dev:h5` 可以在浏览器里预览页面（`http://localhost:5180`），适合调样式；最终效果以开发者工具和真机为准。H5 下需要让请求走开发服务器代理：
 
 ```bash
-VITE_GRAPHQL_URL=/api/graphql VITE_API_PROXY=https://www.yukiani.com pnpm dev:h5
+TARO_APP_GRAPHQL_URL=/api/graphql API_PROXY=https://www.yukiani.com pnpm dev:h5
 ```
 
-`VITE_API_PROXY` 默认是 `http://localhost:8080`，即本地运行的 pjyk 后端。
+`API_PROXY` 默认是 `http://localhost:8080`，即本地运行的 pjyk 后端。
 
 ### GraphQL
 
@@ -89,13 +89,13 @@ VITE_GRAPHQL_URL=/api/graphql VITE_API_PROXY=https://www.yukiani.com pnpm dev:h5
 pnpm codegen
 ```
 
-codegen 使用 `documentMode: "string"`，查询以字符串形式由 `uni.request` 发送，小程序包里不引入 `graphql` 运行时。
+codegen 使用 `documentMode: "string"`，查询以字符串形式由 `Taro.request` 发送，小程序包里不引入 `graphql` 运行时。
 
 ## 配置
 
-- **接口地址**：默认请求 `https://www.yukiani.com/api/graphql`。本地联调可在 `.env.local` 中设置 `VITE_GRAPHQL_URL`。
-- **AppID**：在 `src/manifest.json` 的 `mp-toutiao.appid`、`mp-weixin.appid` 中填写；留空时开发者工具使用测试号。
-- **合法域名**：上线前需要在抖音开放平台和微信公众平台把接口域名加入 request 合法域名（必须是 HTTPS，一般还要求 ICP 备案）。`manifest.json` 里的 `urlCheck: false` 只在开发者工具里跳过校验。
+- **接口地址**：默认请求 `.env` 里的 `TARO_APP_GRAPHQL_URL`（`https://www.yukiani.com/api/graphql`）。本地联调可在 `.env.local` 或命令行里覆盖；只有 `TARO_APP_` 开头的变量会在构建时替换进代码。
+- **AppID**：抖音端填在 `project.tt.json`，微信端填在 `project.config.json`；`touristappid` 是开发者工具的测试号。也可以用环境变量 `TARO_APP_ID` 在构建时替换。
+- **合法域名**：上线前需要在抖音开放平台和微信公众平台把接口域名加入 request 合法域名（必须是 HTTPS，一般还要求 ICP 备案）。两个项目配置文件里的 `urlCheck: false` 只在开发者工具里跳过校验。
 
 ## 与 pjyk 同步的内容
 
@@ -114,11 +114,16 @@ codegen 使用 `documentMode: "string"`，查询以字符串形式由 `uni.reque
 - 页面按小程序的使用习惯组织：底部标签页、详情页沉浸式头图、评分说明用底部弹层；首页内容与前台一致
 - 小程序不能打开外部网站，平台评分点击后提供"复制条目链接"
 - 列表的页码分页改为触底加载
-- 文档在构建期由 `build/markdown.ts` 渲染成 `rich-text` 节点，公式转成纯文本（小程序里没有 KaTeX）
-- 配色写在 `src/uni.scss`，取自前台使用的 Tailwind 色板
+- 文档在构建期由 `build/markdown-loader.js` 渲染成 `rich-text` 节点，公式转成纯文本（小程序里没有 KaTeX）
+- 配色写在 `src/styles/variables.scss`，取自前台使用的 Tailwind 色板
 
 ## 编写约定
 
+- Taro 的小程序端不支持 `<style scoped>`，各组件的样式最终合并到一起。class 一律用组件前缀的 BEM 命名（如 `row-card__title`、`segmented--disabled`），`@keyframes` 名称也带上组件前缀
+- 样式按 `px` 书写，`config/index.ts` 关闭了 `pxtransform`，各端都不做 rpx 换算；不要使用 `rpx`，H5 不认识
+- 页面生命周期用 `@tarojs/taro` 的 `useLoad`、`useDidShow`、`useReachBottom` 等 hooks；用到 `useShareAppMessage` 的页面要在 `index.config.ts` 里设置 `enableShareAppMessage: true`
+- 布尔属性要写成绑定形式（`:scroll-x="true"`、`:lazy-load="true"`），只写属性名在小程序端会被当成空字符串
+- 平台给 `button` 的默认样式带属性选择器，覆盖时需要两层类名（见详情页的分享按钮）
 - 样式不要使用 `*` 选择器，微信小程序不支持
 - `hover-class` 只对 `view`、`button`、`navigator` 生效
 - 图片使用 PNG/JPG，各平台 `image` 组件对 SVG 的支持不一致
@@ -127,4 +132,4 @@ codegen 使用 `documentMode: "string"`，查询以字符串形式由 `uni.reque
 - 榜单和列表页的内容只改 `AnimeBrowser` 及其子组件，不要在两个页面外壳里各写一份
 - 打开普通页面用 `src/utils/navigation.ts` 的 `openPage`，页面栈接近 10 层上限时会改为替换当前页
 - 自定义导航栏的尺寸按运行时胶囊按钮的位置计算（`getNavBarMetrics`），抖音和微信不同
-- 页面顶部的导航栏不显示标题（`pages.json` 里标题留空），不要再调用 `setNavigationBarTitle`
+- 页面顶部的导航栏不显示标题（各页面 `index.config.ts` 里标题留空），不要再调用 `setNavigationBarTitle`

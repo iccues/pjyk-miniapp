@@ -10,23 +10,23 @@ const toggle = () => {
 
 <template>
   <!-- 图标表示点击后切换到的样式 -->
-  <view class="toggle" hover-class="toggle--active" @tap="toggle">
-    <view v-if="layout === 'grid'" class="icon-rows">
-      <view class="bar" />
-      <view class="bar" />
-      <view class="bar" />
+  <view class="layout-toggle" hover-class="layout-toggle--active" @tap="toggle">
+    <view v-if="layout === 'grid'" class="layout-toggle__icon-rows">
+      <view class="layout-toggle__bar" />
+      <view class="layout-toggle__bar" />
+      <view class="layout-toggle__bar" />
     </view>
-    <view v-else class="icon-grid">
-      <view class="cell" />
-      <view class="cell" />
-      <view class="cell" />
-      <view class="cell" />
+    <view v-else class="layout-toggle__icon-grid">
+      <view class="layout-toggle__cell" />
+      <view class="layout-toggle__cell" />
+      <view class="layout-toggle__cell" />
+      <view class="layout-toggle__cell" />
     </view>
   </view>
 </template>
 
-<style lang="scss" scoped>
-.toggle {
+<style lang="scss">
+.layout-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,25 +35,25 @@ const toggle = () => {
   border-radius: 8px;
 }
 
-.toggle--active {
+.layout-toggle--active {
   background-color: $gray-100;
 }
 
-.icon-rows {
+.layout-toggle__icon-rows {
   width: 16px;
 }
 
-.bar {
+.layout-toggle__bar {
   height: 2px;
   border-radius: 1px;
   background-color: $gray-700;
 }
 
-.bar + .bar {
+.layout-toggle__bar + .layout-toggle__bar {
   margin-top: 4px;
 }
 
-.icon-grid {
+.layout-toggle__icon-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -62,7 +62,7 @@ const toggle = () => {
   align-content: space-between;
 }
 
-.cell {
+.layout-toggle__cell {
   width: 7px;
   height: 7px;
   border-radius: 2px;

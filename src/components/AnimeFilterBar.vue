@@ -26,9 +26,9 @@ const changeSortBy = (sortBy: SortBy) => change({ sortBy });
 
 <template>
   <view class="filter-bar">
-    <view class="row">
+    <view class="filter-bar__row">
       <YearPicker :model-value="filters.year" @update:model-value="changeYear" />
-      <view class="seasons">
+      <view class="filter-bar__seasons">
         <SegmentedControl
           :options="SEASON_OPTIONS"
           :value="filters.season"
@@ -41,18 +41,18 @@ const changeSortBy = (sortBy: SortBy) => change({ sortBy });
   </view>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .filter-bar {
   padding: 0 $page-gutter;
 }
 
-.row {
+.filter-bar__row {
   display: flex;
   align-items: center;
   height: $filter-row-height;
 }
 
-.seasons {
+.filter-bar__seasons {
   margin-left: 10px;
 }
 </style>

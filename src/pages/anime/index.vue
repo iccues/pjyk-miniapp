@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onLoad, onPageScroll, onShareAppMessage } from "@dcloudio/uni-app";
+import Taro, { useLoad, usePageScroll, useShareAppMessage } from "@tarojs/taro";
 import { computed, ref } from "vue";
 
 import AnimeDetailSkeleton from "@/components/AnimeDetailSkeleton.vue";
@@ -98,10 +98,10 @@ const openSeasonList = () => {
 };
 
 const previewCover = () => {
-  if (anime.value?.coverImage) uni.previewImage({ urls: [anime.value.coverImage] });
+  if (anime.value?.coverImage) void Taro.previewImage({ urls: [anime.value.coverImage] });
 };
 
-onLoad((options) => {
+useLoad((options) => {
   canGoBack.value = !isEntryPage();
   animeId.value = toPageQuery(options).animeId ?? "";
   invalidId.value = !/^\d+$/.test(animeId.value);
@@ -109,12 +109,12 @@ onLoad((options) => {
 });
 
 // 只在跨过阈值时更新，避免滚动时频繁触发渲染
-onPageScroll(({ scrollTop }) => {
+usePageScroll(({ scrollTop }) => {
   const next = scrollTop > SOLID_NAV_SCROLL_TOP;
   if (next !== scrolled.value) scrolled.value = next;
 });
 
-onShareAppMessage(() => ({
+useShareAppMessage(() => ({
   title: displayTitle.value ? `${displayTitle.value} - 有希计划` : "有希计划",
   path: routes.anime(animeId.value),
   imageUrl: anime.value?.coverImage ?? undefined,
@@ -126,7 +126,7 @@ onShareAppMessage(() => ({
 
   <view
     v-if="invalidId || anime === null"
-    class="state"
+    class="anime-page__state"
     :style="{ paddingTop: `${navHeight + 80}px` }"
   >
     未找到该动画
@@ -134,7 +134,7 @@ onShareAppMessage(() => ({
 
   <view
     v-else-if="error && !anime"
-    class="state state--error"
+    class="anime-page__state anime-page__state--error"
     :style="{ paddingTop: `${navHeight + 80}px` }"
     @tap="load"
   >
@@ -144,73 +144,97 @@ onShareAppMessage(() => ({
   <!-- 首次请求返回前 anime 为 undefined -->
   <AnimeDetailSkeleton v-else-if="!anime" :top-offset="navHeight" />
 
-  <view v-else class="page">
-    <view class="hero">
-      <image v-if="anime.coverImage" class="hero-bg" :src="anime.coverImage" mode="aspectFill" />
-      <view class="hero-mask" />
+  <view v-else class="anime-page">
+    <view class="anime-page__hero">
+      <image
+        v-if="anime.coverImage"
+        class="anime-page__hero-bg"
+        :src="anime.coverImage"
+        mode="aspectFill"
+      />
+      <view class="anime-page__hero-mask" />
 
-      <view class="hero-content" :style="{ paddingTop: `${navHeight + 8}px` }">
+      <view class="anime-page__hero-content" :style="{ paddingTop: `${navHeight + 8}px` }">
         <image
           v-if="anime.coverImage"
-          class="hero-cover"
+          class="anime-page__hero-cover"
           :src="anime.coverImage"
           mode="aspectFill"
           @tap="previewCover"
         />
-        <view v-else class="hero-cover" />
+        <view v-else class="anime-page__hero-cover" />
 
-        <view class="hero-info">
-          <view class="hero-title">{{ displayTitle }}</view>
-          <view v-for="(subTitle, index) in subTitles" :key="index" class="hero-subtitle">
+        <view class="anime-page__hero-info">
+          <view class="anime-page__hero-title">{{ displayTitle }}</view>
+          <view
+            v-for="(subTitle, index) in subTitles"
+            :key="index"
+            class="anime-page__hero-subtitle"
+          >
             {{ subTitle }}
           </view>
-          <view v-if="metaText" class="hero-meta">{{ metaText }}</view>
+          <view v-if="metaText" class="anime-page__hero-meta">{{ metaText }}</view>
         </view>
       </view>
     </view>
 
-    <view class="body">
-      <view class="stats">
-        <view class="stat" hover-class="stat--active" @tap="openSheet('score')">
-          <view class="stat-label">
+    <view class="anime-page__body">
+      <view class="anime-page__stats">
+        <view
+          class="anime-page__stat"
+          hover-class="anime-page__stat--active"
+          @tap="openSheet('score')"
+        >
+          <view class="anime-page__stat-label">
             <text>综合评分</text>
-            <view class="help-icon">?</view>
+            <view class="anime-page__help-icon">?</view>
           </view>
-          <view v-if="anime.averageScore" class="stat-value-row">
-            <text class="stat-value stat-value--score">{{ anime.averageScore.toFixed(1) }}</text>
-            <text class="stat-unit">/100</text>
+          <view v-if="anime.averageScore" class="anime-page__stat-value-row">
+            <text class="anime-page__stat-value anime-page__stat-value--score">{{
+              anime.averageScore.toFixed(1)
+            }}</text>
+            <text class="anime-page__stat-unit">/100</text>
           </view>
-          <text v-else class="stat-empty">暂无</text>
+          <text v-else class="anime-page__stat-empty">暂无</text>
         </view>
 
-        <view class="stat">
-          <view class="stat-label">人气值</view>
-          <text v-if="anime.popularity" class="stat-value stat-value--popularity">
+        <view class="anime-page__stat">
+          <view class="anime-page__stat-label">人气值</view>
+          <text
+            v-if="anime.popularity"
+            class="anime-page__stat-value anime-page__stat-value--popularity"
+          >
             {{ formatInteger(anime.popularity) }}
           </text>
-          <text v-else class="stat-empty">暂无</text>
+          <text v-else class="anime-page__stat-empty">暂无</text>
         </view>
 
-        <button class="share" open-type="share" hover-class="share--active">分享</button>
+        <button class="anime-page__share" open-type="share" hover-class="anime-page__share--active">
+          分享
+        </button>
       </view>
 
-      <view v-if="anime.mappings.length > 0" class="section">
-        <view class="section-head">
-          <text class="section-title">各平台数据</text>
+      <view v-if="anime.mappings.length > 0" class="anime-page__section">
+        <view class="anime-page__section-head">
+          <text class="anime-page__section-title">各平台数据</text>
           <view
-            class="section-help"
-            hover-class="section-help--active"
+            class="anime-page__section-help"
+            hover-class="anime-page__section-help--active"
             @tap="openSheet('platform')"
           >
-            <view class="help-icon">?</view>
+            <view class="anime-page__help-icon">?</view>
           </view>
         </view>
-        <view v-for="mapping in anime.mappings" :key="mapping.mappingId" class="platform">
+        <view
+          v-for="mapping in anime.mappings"
+          :key="mapping.mappingId"
+          class="anime-page__platform"
+        >
           <PlatformScoreRow :mapping="mapping" />
         </view>
       </view>
 
-      <view v-if="animeSeason && sameSeason.data.value?.length" class="shelf">
+      <view v-if="animeSeason && sameSeason.data.value?.length" class="anime-page__shelf">
         <AnimeShelf
           title="同季度动画"
           :subtitle="formatSeason(animeSeason)"
@@ -222,81 +246,89 @@ onShareAppMessage(() => ({
   </view>
 
   <BottomSheet :visible="sheet === 'score'" title="综合评分是怎么算的" @close="closeSheet">
-    <view class="sheet-item">
-      <view class="sheet-item-title">统一尺度</view>
-      <view class="sheet-item-text">
+    <view class="anime-page__sheet-item">
+      <view class="anime-page__sheet-item-title">统一尺度</view>
+      <view class="anime-page__sheet-item-text">
         Bangumi、MyAnimeList、AniList 的打分习惯不同，先把每个平台的评分换算成 0–100
         的标准化评分。50 分代表该平台的平均水平。
       </view>
     </view>
-    <view class="sheet-item">
-      <view class="sheet-item-title">加权平均</view>
-      <view class="sheet-item-text">
+    <view class="anime-page__sheet-item">
+      <view class="anime-page__sheet-item-title">加权平均</view>
+      <view class="anime-page__sheet-item-text">
         各平台的标准化评分按权重加权平均（Bangumi 为 2，其他平台为
         1），得到综合评分。没有评分的平台不参与计算。
       </view>
     </view>
-    <view class="sheet-item">
-      <view class="sheet-item-title">人气值</view>
-      <view class="sheet-item-text">
+    <view class="anime-page__sheet-item">
+      <view class="anime-page__sheet-item-title">人气值</view>
+      <view class="anime-page__sheet-item-text">
         各平台的关注人数先按该平台的人气中位数换算，再加权求和。覆盖的平台越多、关注的人越多，人气值越高。
       </view>
     </view>
-    <view class="sheet-button" hover-class="sheet-button--active" @tap="openArticle('metric')">
+    <view
+      class="anime-page__sheet-button"
+      hover-class="anime-page__sheet-button--active"
+      @tap="openArticle('metric')"
+    >
       查看完整说明
     </view>
   </BottomSheet>
 
   <BottomSheet :visible="sheet === 'platform'" title="各平台数据说明" @close="closeSheet">
-    <view class="sheet-item">
-      <view class="sheet-item-title">标准化评分（横条）</view>
-      <view class="sheet-item-text">
+    <view class="anime-page__sheet-item">
+      <view class="anime-page__sheet-item-title">标准化评分（横条）</view>
+      <view class="anime-page__sheet-item-text">
         该平台评分换算到 0–100 后的结果，50 分为该平台的平均水平，可以直接跨平台比较。
       </view>
     </view>
-    <view class="sheet-item">
-      <view class="sheet-item-title">原始评分与人气</view>
-      <view class="sheet-item-text">
+    <view class="anime-page__sheet-item">
+      <view class="anime-page__sheet-item-title">原始评分与人气</view>
+      <view class="anime-page__sheet-item-text">
         原始评分是平台上显示的分数（Bangumi、MyAnimeList 为 10 分制，AniList 为 100
         分制）。原始人气在 AniList 为关注人数，在另外两个平台为评分人数。
       </view>
     </view>
-    <view class="sheet-item">
-      <view class="sheet-item-title">标准化人气</view>
-      <view class="sheet-item-text">
+    <view class="anime-page__sheet-item">
+      <view class="anime-page__sheet-item-title">标准化人气</view>
+      <view class="anime-page__sheet-item-text">
         原始人气按该平台的人气中位数换算后的值，中位数对应 10000。点击某个平台可以复制它的条目链接。
       </view>
     </view>
-    <view class="sheet-button" hover-class="sheet-button--active" @tap="openArticle('platforms')">
+    <view
+      class="anime-page__sheet-button"
+      hover-class="anime-page__sheet-button--active"
+      @tap="openArticle('platforms')"
+    >
       查看平台参数
     </view>
   </BottomSheet>
 </template>
 
-<style lang="scss" scoped>
-.state {
+<style lang="scss">
+.anime-page__state {
   padding: 0 $page-gutter;
   color: $gray-500;
   font-size: 15px;
   text-align: center;
 }
 
-.state--error {
+.anime-page__state--error {
   color: $red-600;
 }
 
-.page {
+.anime-page {
   padding-bottom: calc(32px + env(safe-area-inset-bottom));
 }
 
 /* 头图：封面放大模糊作为背景，叠一层深色遮罩保证白字可读 */
-.hero {
+.anime-page__hero {
   position: relative;
   overflow: hidden;
   background-color: $gray-800;
 }
 
-.hero-bg {
+.anime-page__hero-bg {
   position: absolute;
   top: 0;
   left: 0;
@@ -306,7 +338,7 @@ onShareAppMessage(() => ({
   transform: scale(1.3);
 }
 
-.hero-mask {
+.anime-page__hero-mask {
   position: absolute;
   top: 0;
   right: 0;
@@ -315,13 +347,13 @@ onShareAppMessage(() => ({
   background-image: linear-gradient(rgba(16, 24, 40, 0.45), rgba(16, 24, 40, 0.75));
 }
 
-.hero-content {
+.anime-page__hero-content {
   position: relative;
   display: flex;
   padding: 0 $page-gutter 36px;
 }
 
-.hero-cover {
+.anime-page__hero-cover {
   flex-shrink: 0;
   width: 112px;
   height: 157px;
@@ -330,21 +362,21 @@ onShareAppMessage(() => ({
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-.hero-info {
+.anime-page__hero-info {
   flex: 1;
   min-width: 0;
   margin-left: 16px;
   padding-top: 4px;
 }
 
-.hero-title {
+.anime-page__hero-title {
   color: #fff;
   font-size: 20px;
   font-weight: 700;
   line-height: 1.3;
 }
 
-.hero-subtitle {
+.anime-page__hero-subtitle {
   margin-top: 6px;
   overflow: hidden;
   color: rgba(255, 255, 255, 0.75);
@@ -353,14 +385,14 @@ onShareAppMessage(() => ({
   white-space: nowrap;
 }
 
-.hero-meta {
+.anime-page__hero-meta {
   margin-top: 10px;
   color: rgba(255, 255, 255, 0.6);
   font-size: 12px;
 }
 
 /* 内容区圆角上移盖住头图底部 */
-.body {
+.anime-page__body {
   position: relative;
   margin-top: -16px;
   padding-top: 20px;
@@ -368,21 +400,21 @@ onShareAppMessage(() => ({
   background-color: #fff;
 }
 
-.stats {
+.anime-page__stats {
   display: flex;
   align-items: center;
   padding: 0 $page-gutter;
 }
 
-.stat {
+.anime-page__stat {
   margin-right: 20px;
 }
 
-.stat--active {
+.anime-page__stat--active {
   opacity: 0.6;
 }
 
-.stat-label {
+.anime-page__stat-label {
   display: flex;
   align-items: center;
   color: $gray-500;
@@ -390,7 +422,7 @@ onShareAppMessage(() => ({
   font-weight: 700;
 }
 
-.help-icon {
+.anime-page__help-icon {
   width: 13px;
   height: 13px;
   margin-left: 4px;
@@ -402,12 +434,12 @@ onShareAppMessage(() => ({
   text-align: center;
 }
 
-.stat-value-row {
+.anime-page__stat-value-row {
   display: flex;
   align-items: baseline;
 }
 
-.stat-value {
+.anime-page__stat-value {
   margin-top: 4px;
   font-size: 28px;
   font-weight: 900;
@@ -415,28 +447,33 @@ onShareAppMessage(() => ({
   font-variant-numeric: tabular-nums;
 }
 
-.stat-value--score {
+.anime-page__stat-value--score {
   color: $indigo-600;
 }
 
-.stat-value--popularity {
+.anime-page__stat-value--popularity {
   color: $pink-500;
 }
 
-.stat-unit {
+.anime-page__stat-unit {
   margin-left: 2px;
   color: $gray-400;
   font-size: 14px;
 }
 
-.stat-empty {
+.anime-page__stat-empty {
   margin-top: 8px;
   color: $gray-400;
   font-size: 15px;
 }
 
-.share {
+/*
+ * 各端给 button 的默认样式带属性选择器，例如 button:not([size="mini"]) 的固定宽度，
+ * 优先级比单个类名高，所以这里多加一层类名
+ */
+.anime-page__stats .anime-page__share {
   flex-shrink: 0;
+  width: auto;
   margin: 0 0 0 auto;
   padding: 0 16px;
   border-radius: 16px;
@@ -447,32 +484,32 @@ onShareAppMessage(() => ({
   white-space: nowrap;
 }
 
-.share::after {
+.anime-page__stats .anime-page__share::after {
   border: none;
 }
 
-.share--active {
+.anime-page__stats .anime-page__share--active {
   background-color: $gray-200;
 }
 
-.section {
+.anime-page__section {
   margin-top: 28px;
   padding: 0 $page-gutter;
 }
 
-.section-head {
+.anime-page__section-head {
   display: flex;
   align-items: center;
   margin-bottom: 4px;
 }
 
-.section-title {
+.anime-page__section-title {
   color: $gray-900;
   font-size: 17px;
   font-weight: 700;
 }
 
-.section-help {
+.anime-page__section-help {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -481,36 +518,36 @@ onShareAppMessage(() => ({
   color: $gray-400;
 }
 
-.section-help--active {
+.anime-page__section-help--active {
   opacity: 0.6;
 }
 
-.platform + .platform {
+.anime-page__platform + .anime-page__platform {
   border-top: 1px solid $gray-100;
 }
 
-.shelf {
+.anime-page__shelf {
   margin-top: 28px;
 }
 
-.sheet-item + .sheet-item {
+.anime-page__sheet-item + .anime-page__sheet-item {
   margin-top: 16px;
 }
 
-.sheet-item-title {
+.anime-page__sheet-item-title {
   color: $gray-900;
   font-size: 15px;
   font-weight: 600;
 }
 
-.sheet-item-text {
+.anime-page__sheet-item-text {
   margin-top: 4px;
   color: $gray-600;
   font-size: 14px;
   line-height: 1.6;
 }
 
-.sheet-button {
+.anime-page__sheet-button {
   margin-top: 24px;
   border-radius: 12px;
   background-color: $gray-900;
@@ -521,7 +558,7 @@ onShareAppMessage(() => ({
   text-align: center;
 }
 
-.sheet-button--active {
+.anime-page__sheet-button--active {
   background-color: $gray-700;
 }
 </style>

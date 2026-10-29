@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onLoad, onReachBottom, onShareAppMessage } from "@dcloudio/uni-app";
+import { useLoad, useReachBottom, useShareAppMessage } from "@tarojs/taro";
 import { ref } from "vue";
 
 import AnimeBrowser from "@/components/AnimeBrowser.vue";
@@ -20,7 +20,7 @@ const onChange = (filters: AnimeListFilters, layout: ListLayout) => {
   state.value = { filters, layout };
 };
 
-onLoad((options) => {
+useLoad((options) => {
   const query = toPageQuery(options);
   state.value = {
     filters: parseFilters(query, DEFAULT_FILTERS),
@@ -32,11 +32,11 @@ onLoad((options) => {
   if (showHome.value) hideNativeHomeButton();
 });
 
-onReachBottom(() => {
+useReachBottom(() => {
   browser.value?.loadMore();
 });
 
-onShareAppMessage(() => ({
+useShareAppMessage(() => ({
   title: `${describeFilters(state.value.filters)} - 有希计划`,
   path: routes.list(state.value),
 }));

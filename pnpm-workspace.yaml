@@ -1,5 +1,12 @@
-# 单项目也用这个文件存放 pnpm 设置；这些依赖的安装脚本不是构建所需，不执行
+# 单项目也用这个文件存放 pnpm 设置。以下依赖的安装脚本都不是构建所需，不执行：
+# - @swc/core、@tarojs/binding：预编译的原生模块已通过平台包安装，脚本只在缺失时从源码编译
+# - @tarojs/cli：脚本会访问京东内网安装构建性能上报插件
+# - @parcel/watcher：sass 和 codegen 的监听模式使用，预编译模块已通过平台包安装
 allowBuilds:
+  "@parcel/watcher": false
+  "@swc/core": false
+  "@tarojs/binding": false
+  "@tarojs/cli": false
   core-js: false
   core-js-pure: false
   esbuild: false

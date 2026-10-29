@@ -5,7 +5,9 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "types": ["node"],
+    "allowJs": true,
+    "checkJs": true,
     "noEmit": true
   },
-  "include": ["vite.config.ts", "codegen.ts", "build/**/*.ts"]
+  "include": ["config/**/*.ts", "codegen.ts", "build/**/*.js"]
 }

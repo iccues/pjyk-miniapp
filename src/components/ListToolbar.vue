@@ -25,44 +25,48 @@ const openMetricArticle = () => {
 </script>
 
 <template>
-  <view class="toolbar">
+  <view class="list-toolbar">
     <SegmentedControl
       v-if="sortBy"
       :options="SORT_BY_OPTIONS"
       :value="sortBy"
       @change="changeSortBy"
     />
-    <text v-else class="summary">{{ summary }}</text>
+    <text v-else class="list-toolbar__summary">{{ summary }}</text>
 
-    <view class="actions">
-      <view class="help" hover-class="help--active" @tap="openMetricArticle">
+    <view class="list-toolbar__actions">
+      <view
+        class="list-toolbar__help"
+        hover-class="list-toolbar__help--active"
+        @tap="openMetricArticle"
+      >
         <text>评分说明</text>
-        <view class="help-icon">?</view>
+        <view class="list-toolbar__help-icon">?</view>
       </view>
       <LayoutToggle v-model="layout" />
     </view>
   </view>
 </template>
 
-<style lang="scss" scoped>
-.toolbar {
+<style lang="scss">
+.list-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: $list-toolbar-height;
 }
 
-.summary {
+.list-toolbar__summary {
   color: $gray-500;
   font-size: 13px;
 }
 
-.actions {
+.list-toolbar__actions {
   display: flex;
   align-items: center;
 }
 
-.help {
+.list-toolbar__help {
   display: flex;
   align-items: center;
   margin-right: 4px;
@@ -72,11 +76,11 @@ const openMetricArticle = () => {
   font-size: 12px;
 }
 
-.help--active {
+.list-toolbar__help--active {
   background-color: $gray-100;
 }
 
-.help-icon {
+.list-toolbar__help-icon {
   width: 13px;
   height: 13px;
   margin-left: 3px;

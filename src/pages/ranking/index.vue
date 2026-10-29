@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onLoad, onReachBottom, onShareAppMessage } from "@dcloudio/uni-app";
+import { useLoad, useReachBottom, useShareAppMessage } from "@tarojs/taro";
 import { ref } from "vue";
 
 import AnimeBrowser from "@/components/AnimeBrowser.vue";
@@ -18,7 +18,7 @@ const onChange = (filters: AnimeListFilters, layout: ListLayout) => {
 };
 
 // 默认是全部年份按评分排列，即历史榜；分享链接会带上分享者当时的筛选和样式
-onLoad((options) => {
+useLoad((options) => {
   const query = toPageQuery(options);
   state.value = {
     filters: parseFilters(query, DEFAULT_FILTERS),
@@ -27,11 +27,11 @@ onLoad((options) => {
   initial.value = state.value;
 });
 
-onReachBottom(() => {
+useReachBottom(() => {
   browser.value?.loadMore();
 });
 
-onShareAppMessage(() => ({
+useShareAppMessage(() => ({
   title: `${describeFilters(state.value.filters)}榜单 - 有希计划`,
   path: routes.ranking(state.value),
 }));

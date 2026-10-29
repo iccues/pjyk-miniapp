@@ -12,12 +12,16 @@ const blockScroll = () => {};
 
 <template>
   <view v-if="visible" class="bottom-sheet" @touchmove.stop.prevent="blockScroll">
-    <view class="mask" @tap="emit('close')" />
-    <view class="panel">
-      <view class="head">
-        <text class="title">{{ title }}</text>
-        <view class="close" hover-class="close--active" @tap="emit('close')">
-          <view class="close-icon" />
+    <view class="bottom-sheet__mask" @tap="emit('close')" />
+    <view class="bottom-sheet__panel">
+      <view class="bottom-sheet__head">
+        <text class="bottom-sheet__title">{{ title }}</text>
+        <view
+          class="bottom-sheet__close"
+          hover-class="bottom-sheet__close--active"
+          @tap="emit('close')"
+        >
+          <view class="bottom-sheet__close-icon" />
         </view>
       </view>
       <slot />
@@ -25,14 +29,14 @@ const blockScroll = () => {};
   </view>
 </template>
 
-<style lang="scss" scoped>
-@keyframes fade-in {
+<style lang="scss">
+@keyframes bottom-sheet-fade-in {
   from {
     opacity: 0;
   }
 }
 
-@keyframes slide-up {
+@keyframes bottom-sheet-slide-up {
   from {
     transform: translateY(100%);
   }
@@ -47,17 +51,17 @@ const blockScroll = () => {};
   z-index: 100;
 }
 
-.mask {
+.bottom-sheet__mask {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
   background-color: rgba(16, 24, 40, 0.45);
-  animation: fade-in 0.2s ease-out;
+  animation: bottom-sheet-fade-in 0.2s ease-out;
 }
 
-.panel {
+.bottom-sheet__panel {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -65,23 +69,23 @@ const blockScroll = () => {};
   padding: 8px $page-gutter calc(24px + env(safe-area-inset-bottom));
   border-radius: 20px 20px 0 0;
   background-color: #fff;
-  animation: slide-up 0.25s ease-out;
+  animation: bottom-sheet-slide-up 0.25s ease-out;
 }
 
-.head {
+.bottom-sheet__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 48px;
 }
 
-.title {
+.bottom-sheet__title {
   color: $gray-900;
   font-size: 17px;
   font-weight: 700;
 }
 
-.close {
+.bottom-sheet__close {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -91,18 +95,18 @@ const blockScroll = () => {};
   border-radius: 16px;
 }
 
-.close--active {
+.bottom-sheet__close--active {
   background-color: $gray-100;
 }
 
-.close-icon {
+.bottom-sheet__close-icon {
   position: relative;
   width: 14px;
   height: 14px;
 }
 
-.close-icon::before,
-.close-icon::after {
+.bottom-sheet__close-icon::before,
+.bottom-sheet__close-icon::after {
   content: "";
   position: absolute;
   top: 6px;
@@ -114,7 +118,7 @@ const blockScroll = () => {};
   transform: rotate(45deg);
 }
 
-.close-icon::after {
+.bottom-sheet__close-icon::after {
   transform: rotate(-45deg);
 }
 </style>
