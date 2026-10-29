@@ -49,7 +49,7 @@ const openMetricArticle = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 44px;
+  height: $list-toolbar-height;
 }
 
 .summary {

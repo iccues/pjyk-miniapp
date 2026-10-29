@@ -107,6 +107,6 @@ onShareAppMessage(() => ({
 }
 
 .content {
-  padding: 12px $page-gutter 0;
+  padding: 8px $page-gutter 0;
 }
 </style>

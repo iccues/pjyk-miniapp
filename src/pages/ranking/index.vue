@@ -4,7 +4,7 @@ import { ref } from "vue";
 
 import AnimeList from "@/components/AnimeList.vue";
 import ListToolbar from "@/components/ListToolbar.vue";
-import SegmentedControl from "@/components/SegmentedControl.vue";
+import TabItem from "@/components/TabItem.vue";
 import YearPicker from "@/components/YearPicker.vue";
 import { useAnimeListQuery } from "@/composables/useAnimeListQuery";
 import type { ListLayout, SelectOption } from "@/constants/ui-options";
@@ -90,16 +90,26 @@ onShareAppMessage(() => ({
 
 <template>
   <view class="header">
-    <view class="scope-row">
-      <SegmentedControl :options="SCOPE_OPTIONS" :value="scope" @change="changeScope" />
-      <YearPicker v-if="scope === 'yearly'" :model-value="year" @update:model-value="changeYear" />
+    <view class="tabs">
+      <view v-for="option in SCOPE_OPTIONS" :key="option.value" class="tab">
+        <TabItem
+          :label="option.label"
+          :active="scope === option.value"
+          @select="changeScope(option.value)"
+        />
+      </view>
+      <view v-if="scope === 'yearly'" class="year">
+        <YearPicker :model-value="year" @update:model-value="changeYear" />
+      </view>
     </view>
-    <ListToolbar
-      :sort-by="sortBy"
-      :layout="layout"
-      @update:sort-by="changeSortBy"
-      @update:layout="changeLayout"
-    />
+    <view class="toolbar">
+      <ListToolbar
+        :sort-by="sortBy"
+        :layout="layout"
+        @update:sort-by="changeSortBy"
+        @update:layout="changeLayout"
+      />
+    </view>
   </view>
 
   <view class="content">
@@ -117,23 +127,36 @@ onShareAppMessage(() => ({
 </template>
 
 <style lang="scss" scoped>
+/* 顶部结构与新番页一致：标签行 + 筛选栏，高度由 uni.scss 里的变量统一 */
 /* H5 下页面顶部有模拟导航栏，--window-top 是它的高度；小程序里该变量不存在，回退为 0 */
 .header {
   position: sticky;
   top: var(--window-top, 0px);
   z-index: 10;
-  padding: 8px $page-gutter 4px;
   border-bottom: 1px solid $gray-100;
   background-color: #fff;
 }
 
-.scope-row {
+.tabs {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  height: $list-tabs-height;
+  padding: 0 $page-gutter;
+}
+
+.tab + .tab {
+  margin-left: 20px;
+}
+
+.year {
+  margin-left: auto;
+}
+
+.toolbar {
+  padding: 0 $page-gutter;
 }
 
 .content {
-  padding: 4px $page-gutter 0;
+  padding: 8px $page-gutter 0;
 }
 </style>

@@ -96,6 +96,7 @@ onShareAppMessage(() => ({
 </template>
 
 <style lang="scss" scoped>
+/* 顶部结构与榜单页一致：标签行 + 筛选栏，高度由 uni.scss 里的变量统一 */
 /* H5 下页面顶部有模拟导航栏，--window-top 是它的高度；小程序里该变量不存在，回退为 0 */
 .header {
   position: sticky;
@@ -106,10 +107,10 @@ onShareAppMessage(() => ({
 }
 
 .toolbar {
-  padding: 0 $page-gutter 4px;
+  padding: 0 $page-gutter;
 }
 
 .content {
-  padding: 12px $page-gutter 0;
+  padding: 8px $page-gutter 0;
 }
 </style>

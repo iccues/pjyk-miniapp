@@ -25,3 +25,7 @@ $rank-bronze: #c27c4a;
 
 // 页面左右留白，与前台 --page-gutter 一致
 $page-gutter: 20px;
+
+// 新番、榜单顶部的两行：标签行和筛选栏，两个页面共用，保证高度一致
+$list-tabs-height: 46px;
+$list-toolbar-height: 44px;

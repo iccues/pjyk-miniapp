@@ -10,6 +10,8 @@ import {
   type SeasonKey,
 } from "@/utils/season";
 
+import TabItem from "./TabItem.vue";
+
 const season = defineModel<SeasonKey>({ required: true });
 
 // 最近两年的季度直接平铺，更早的放进"更早"选择器
@@ -32,6 +34,7 @@ const tabs = computed(() =>
 
 const olderIndex = computed(() => olderSeasons.findIndex((key) => isSameSeason(key, season.value)));
 const pickerIndex = computed(() => Math.max(olderIndex.value, 0));
+const olderLabel = computed(() => olderLabels[olderIndex.value] ?? "更早");
 
 const select = (key: SeasonKey) => {
   season.value = key;
@@ -46,27 +49,18 @@ const onPickOlder = (event: { detail: { value: number | string } }) => {
 <template>
   <scroll-view class="season-tabs" scroll-x :show-scrollbar="false" enhanced>
     <view class="track">
-      <view
-        v-for="tab in tabs"
-        :key="tab.id"
-        class="tab"
-        :class="{ 'tab--active': tab.active }"
-        @tap="select(tab.key)"
-      >
-        {{ tab.label }}
+      <view v-for="tab in tabs" :key="tab.id" class="item">
+        <TabItem :label="tab.label" :active="tab.active" @select="select(tab.key)" />
       </view>
 
       <picker
-        class="older"
+        class="item"
         mode="selector"
         :range="olderLabels"
         :value="pickerIndex"
         @change="onPickOlder"
       >
-        <view class="tab tab--older" :class="{ 'tab--active': olderIndex >= 0 }">
-          <text>{{ olderIndex >= 0 ? olderLabels[olderIndex] : "更早" }}</text>
-          <view class="caret" />
-        </view>
+        <TabItem :label="olderLabel" :active="olderIndex >= 0" caret />
       </picker>
     </view>
   </scroll-view>
@@ -75,57 +69,24 @@ const onPickOlder = (event: { detail: { value: number | string } }) => {
 <style lang="scss" scoped>
 .season-tabs {
   width: 100%;
+  height: $list-tabs-height;
   white-space: nowrap;
 }
 
-/* 固定高度：H5 下 picker 自带的样式会把整行撑高，下划线跟着偏离文字 */
+/* 固定高度：H5 下 picker 自带的样式会把整行撑高 */
 .track {
   display: inline-flex;
   align-items: center;
-  height: 46px;
+  height: $list-tabs-height;
   padding: 0 $page-gutter;
 }
 
-.tab {
-  position: relative;
-  height: 46px;
-  color: $gray-500;
-  font-size: 15px;
-  line-height: 46px;
+/* 标签在横向滚动区域里不能被压缩，否则文字会折行 */
+.item {
+  flex-shrink: 0;
 }
 
-.tab + .tab,
-.older {
+.item + .item {
   margin-left: 20px;
-}
-
-.tab--active {
-  color: $gray-900;
-  font-weight: 700;
-}
-
-.tab--active::after {
-  content: "";
-  position: absolute;
-  right: 20%;
-  bottom: 5px;
-  left: 20%;
-  height: 3px;
-  border-radius: 2px;
-  background-color: $indigo-600;
-}
-
-.tab--older {
-  display: flex;
-  align-items: center;
-}
-
-.caret {
-  width: 5px;
-  height: 5px;
-  margin: -3px 0 0 6px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(45deg);
 }
 </style>
