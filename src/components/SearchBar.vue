@@ -1,17 +1,21 @@
 <script setup lang="ts">
-// 仅处理输入和提交，跳转方式由调用方决定
+// 只负责输入；什么时候发起搜索由页面决定
 const keyword = defineModel<string>({ required: true });
+const focused = defineModel<boolean>("focused", { default: false });
 
-const emit = defineEmits<{ submit: [] }>();
+const emit = defineEmits<{ confirm: [] }>();
 
-withDefaults(defineProps<{ placeholder?: string; focus?: boolean }>(), {
-  placeholder: "搜索动画…",
-  focus: false,
-});
+withDefaults(defineProps<{ placeholder?: string }>(), { placeholder: "搜索动画名称" });
+
+const clear = () => {
+  keyword.value = "";
+  focused.value = true;
+};
 </script>
 
 <template>
   <view class="search-bar">
+    <image class="icon" src="/static/icons/search.png" mode="aspectFit" />
     <!-- 输入框使用 16px 字号，避免 iOS 聚焦时页面缩放 -->
     <input
       v-model="keyword"
@@ -20,10 +24,14 @@ withDefaults(defineProps<{ placeholder?: string; focus?: boolean }>(), {
       confirm-type="search"
       :placeholder="placeholder"
       placeholder-style="color: #99a1af"
-      :focus="focus"
-      @confirm="emit('submit')"
+      :focus="focused"
+      @focus="focused = true"
+      @blur="focused = false"
+      @confirm="emit('confirm')"
     />
-    <view class="button" hover-class="button--active" @tap="emit('submit')">搜索</view>
+    <view v-if="keyword" class="clear" @tap="clear">
+      <view class="clear-icon" />
+    </view>
   </view>
 </template>
 
@@ -31,38 +39,58 @@ withDefaults(defineProps<{ placeholder?: string; focus?: boolean }>(), {
 .search-bar {
   display: flex;
   align-items: center;
-  box-sizing: border-box;
-  width: 100%;
-  border: 1px solid $gray-500;
-  border-radius: 12px;
-  background-color: #fff;
+  height: 40px;
+  padding-left: 12px;
+  border-radius: 20px;
+  background-color: $gray-100;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
 }
 
 .input {
   flex: 1;
   min-width: 0;
-  height: 44px;
-  padding: 0 14px;
+  height: 40px;
+  padding: 0 8px;
   color: $gray-900;
   font-size: 16px;
-  // 首页搜索框放在居中排版的区域里，输入内容仍然左对齐
-  text-align: left;
 }
 
-.button {
-  flex-shrink: 0;
-  height: 36px;
-  margin: 4px;
-  padding: 0 16px;
-  border-radius: 8px;
-  background-color: $gray-900;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 36px;
+.clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
 }
 
-.button--active {
-  background-color: $gray-700;
+/* 灰色圆底上画一个 ×，两条线由伪元素旋转得到 */
+.clear-icon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: $gray-400;
+}
+
+.clear-icon::before,
+.clear-icon::after {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 4px;
+  width: 8px;
+  height: 2px;
+  border-radius: 1px;
+  background-color: #fff;
+  transform: rotate(45deg);
+}
+
+.clear-icon::after {
+  transform: rotate(-45deg);
 }
 </style>

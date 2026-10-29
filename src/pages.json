@@ -1,39 +1,71 @@
 {
   "pages": [
     {
-      "path": "pages/index/index",
+      "path": "pages/season/index",
       "style": {
-        "navigationBarTitleText": "有希计划",
+        "navigationBarTitleText": "新番",
         "enablePullDownRefresh": true
       }
     },
     {
-      "path": "pages/anime-list/index",
+      "path": "pages/ranking/index",
       "style": {
-        "navigationBarTitleText": "全部动画",
+        "navigationBarTitleText": "榜单",
         "enablePullDownRefresh": true
       }
     },
     {
       "path": "pages/search/index",
       "style": {
-        "navigationBarTitleText": "搜索动画"
+        "navigationBarTitleText": "搜索"
       }
     },
     {
-      "path": "pages/anime-detail/index",
+      "path": "pages/anime/index",
       "style": {
-        "navigationBarTitleText": "动画详情",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/list/index",
+      "style": {
+        "navigationBarTitleText": "动画",
         "enablePullDownRefresh": true
       }
     },
     {
-      "path": "pages/docs/index",
+      "path": "pages/article/index",
       "style": {
         "navigationBarTitleText": "有希计划"
       }
     }
   ],
+  "tabBar": {
+    "color": "#99a1af",
+    "selectedColor": "#101828",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/season/index",
+        "text": "新番",
+        "iconPath": "static/tabbar/season.png",
+        "selectedIconPath": "static/tabbar/season-active.png"
+      },
+      {
+        "pagePath": "pages/ranking/index",
+        "text": "榜单",
+        "iconPath": "static/tabbar/ranking.png",
+        "selectedIconPath": "static/tabbar/ranking-active.png"
+      },
+      {
+        "pagePath": "pages/search/index",
+        "text": "搜索",
+        "iconPath": "static/tabbar/search.png",
+        "selectedIconPath": "static/tabbar/search-active.png"
+      }
+    ]
+  },
   "globalStyle": {
     "navigationBarTitleText": "有希计划",
     "navigationBarTextStyle": "black",

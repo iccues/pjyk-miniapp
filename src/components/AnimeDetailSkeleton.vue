@@ -1,19 +1,29 @@
+<script setup lang="ts">
+// 与详情页头图区域对齐，topOffset 为自定义导航栏的总高度
+defineProps<{ topOffset: number }>();
+</script>
+
 <template>
   <view class="skeleton">
-    <view class="cover" />
-    <view class="bar bar--title" />
-    <view class="bar bar--line" />
-    <view class="bar bar--line bar--short" />
-    <view class="stats">
-      <view class="stat" />
-      <view class="stat" />
+    <view class="hero" :style="{ paddingTop: `${topOffset + 8}px` }">
+      <view class="cover" />
+      <view class="info">
+        <view class="bar bar--title" />
+        <view class="bar bar--line" />
+        <view class="bar bar--short" />
+      </view>
     </view>
 
-    <view class="section-title" />
-    <view v-for="index in 3" :key="index" class="card">
-      <view class="bar bar--card-title" />
-      <view class="bar bar--card-score" />
-      <view class="bar bar--card-line" />
+    <view class="body">
+      <view class="stats">
+        <view class="stat" />
+        <view class="stat" />
+      </view>
+      <view class="bar bar--section" />
+      <view v-for="index in 3" :key="index" class="platform">
+        <view class="bar bar--line" />
+        <view class="bar bar--track" />
+      </view>
     </view>
   </view>
 </template>
@@ -26,85 +36,84 @@
 }
 
 .skeleton {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24px $page-gutter 0;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+.hero {
+  display: flex;
+  padding: 0 $page-gutter 36px;
+  background-color: $gray-100;
+}
+
 .cover {
-  width: 220px;
-  height: 308px;
-  border-radius: 16px;
+  flex-shrink: 0;
+  width: 112px;
+  height: 157px;
+  border-radius: 10px;
   background-color: $gray-200;
 }
 
+.info {
+  flex: 1;
+  margin-left: 16px;
+  padding-top: 8px;
+}
+
 .bar {
+  height: 14px;
   border-radius: 999px;
   background-color: $gray-200;
 }
 
+.bar + .bar {
+  margin-top: 12px;
+}
+
 .bar--title {
-  width: 70%;
-  height: 28px;
-  margin-top: 24px;
+  width: 80%;
+  height: 22px;
 }
 
 .bar--line {
   width: 60%;
-  height: 14px;
-  margin-top: 12px;
 }
 
 .bar--short {
   width: 40%;
 }
 
+.body {
+  margin-top: -16px;
+  padding: 20px $page-gutter 0;
+  border-radius: 20px 20px 0 0;
+  background-color: #fff;
+}
+
 .stats {
   display: flex;
-  margin-top: 20px;
 }
 
 .stat {
   width: 96px;
-  height: 48px;
-  margin: 0 12px;
+  height: 52px;
+  margin-right: 24px;
   border-radius: 12px;
-  background-color: $gray-200;
+  background-color: $gray-100;
 }
 
-.section-title {
-  align-self: stretch;
+.bar--section {
   width: 120px;
-  height: 22px;
-  margin-top: 40px;
-  border-radius: 999px;
-  background-color: $gray-200;
+  height: 18px;
+  margin-top: 32px;
 }
 
-.card {
-  align-self: stretch;
-  margin-top: 16px;
-  padding: 18px;
-  border: 1px solid $gray-100;
-  border-radius: 16px;
+.platform {
+  margin-top: 20px;
 }
 
-.bar--card-title {
-  width: 120px;
-  height: 16px;
-}
-
-.bar--card-score {
-  width: 140px;
-  height: 22px;
-  margin-top: 12px;
-}
-
-.bar--card-line {
-  width: 70%;
-  height: 14px;
-  margin-top: 12px;
+.bar--track {
+  width: 100%;
+  height: 6px;
+  margin-top: 10px;
 }
 </style>

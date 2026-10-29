@@ -2,9 +2,12 @@
 import { onLoad, onShareAppMessage } from "@dcloudio/uni-app";
 import { computed, ref } from "vue";
 
+import HomeFab from "@/components/HomeFab.vue";
 import about from "@/docs/about.md";
 import metric from "@/docs/metric.md";
 import platforms from "@/docs/platforms.md";
+import { hideNativeHomeButton, isEntryPage } from "@/utils/navigation";
+import { toPageQuery } from "@/utils/query";
 import { routes, type DocName } from "@/utils/routes";
 
 const DOCS: Record<DocName, { label: string; title: string; nodes: Record<string, unknown>[] }> = {
@@ -17,26 +20,30 @@ const DOC_NAMES = Object.keys(DOCS) as DocName[];
 
 const current = ref<DocName>("about");
 const doc = computed(() => DOCS[current.value]);
+const showHome = ref(false);
 
 // 文档之间互相切换时替换当前页，避免页面栈越叠越深
 const switchDoc = (name: DocName) => {
-  if (name !== current.value) uni.redirectTo({ url: routes.docs(name) });
+  if (name !== current.value) uni.redirectTo({ url: routes.article(name) });
 };
 
-onLoad((query) => {
-  const name = (query as Record<string, string> | undefined)?.name as DocName;
+onLoad((options) => {
+  const name = toPageQuery(options).name as DocName;
   if (DOC_NAMES.includes(name)) current.value = name;
   uni.setNavigationBarTitle({ title: doc.value.title });
+
+  showHome.value = isEntryPage();
+  if (showHome.value) hideNativeHomeButton();
 });
 
 onShareAppMessage(() => ({
   title: `${doc.value.title} - 有希计划`,
-  path: routes.docs(current.value),
+  path: routes.article(current.value),
 }));
 </script>
 
 <template>
-  <view class="page">
+  <view class="page" :class="{ 'page--with-home': showHome }">
     <rich-text :nodes="doc.nodes" />
 
     <view class="nav">
@@ -51,11 +58,18 @@ onShareAppMessage(() => ({
       </view>
     </view>
   </view>
+
+  <HomeFab v-if="showHome" />
 </template>
 
 <style lang="scss" scoped>
 .page {
   padding: 24px $page-gutter 40px;
+}
+
+/* 给右下角的"首页"按钮留出位置 */
+.page--with-home {
+  padding-bottom: 96px;
 }
 
 .nav {

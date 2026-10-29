@@ -1,19 +1,35 @@
 <script setup lang="ts">
-import { onLoad, onReachBottom, onShareAppMessage } from "@dcloudio/uni-app";
-import { ref } from "vue";
+import { onHide, onLoad, onReachBottom, onShareAppMessage, onShow } from "@dcloudio/uni-app";
+import { computed, ref, watch } from "vue";
 
-import AnimeGrid from "@/components/AnimeGrid.vue";
+import AnimeCard from "@/components/AnimeCard.vue";
+import AnimeCardSkeleton from "@/components/AnimeCardSkeleton.vue";
+import AnimeList from "@/components/AnimeList.vue";
+import ListToolbar from "@/components/ListToolbar.vue";
 import SearchBar from "@/components/SearchBar.vue";
 import { usePagedAnimeList } from "@/composables/usePagedAnimeList";
-import { PAGE_SIZE } from "@/constants/ui-options";
-import { GetAnimeListBySearchDocument } from "@/graphql/generated/graphql";
+import { useRequest } from "@/composables/useRequest";
+import { PAGE_SIZE, type ListLayout } from "@/constants/ui-options";
+import { GetAnimeListBySearchDocument, GetAnimeListDocument } from "@/graphql/generated/graphql";
 import { request } from "@/graphql/request";
-import { decodeQueryValue } from "@/utils/filters";
-import { routes } from "@/utils/routes";
+import { openPage } from "@/utils/navigation";
+import { decodeQueryValue, parseLayout, toPageQuery } from "@/utils/query";
+import { routes, type DocName } from "@/utils/routes";
+import {
+  formatSeason,
+  getCurrentSeason,
+  listSeasonsBackward,
+  type SeasonKey,
+} from "@/utils/season";
 
-// input 是输入框内容，keyword 是已提交的搜索词
+// 停止输入后等多久再发起搜索，避免每敲一个字就请求一次
+const SEARCH_DELAY = 300;
+
+// input 是输入框内容，keyword 是已经发起搜索的关键词
 const input = ref("");
 const keyword = ref("");
+const focused = ref(false);
+const layout = ref<ListLayout>("row");
 
 const { items, total, loading, finished, error, clear, reset, loadMore, retry } = usePagedAnimeList(
   async (pageNumber) => {
@@ -26,25 +42,101 @@ const { items, total, loading, finished, error, clear, reset, loadMore, retry } 
   },
 );
 
+const scrollToTop = () => uni.pageScrollTo({ scrollTop: 0, duration: 0 });
+
 const search = (value: string) => {
+  if (value === keyword.value) return;
   keyword.value = value;
-  // 空关键词时清空结果并显示搜索提示
   if (value) {
     reset();
   } else {
     clear();
   }
+  scrollToTop();
 };
 
-const submit = () => {
+let timer: ReturnType<typeof setTimeout> | undefined;
+
+watch(input, (value) => {
+  clearTimeout(timer);
+  const trimmed = value.trim();
+  // 清空时立即回到探索内容，输入时等停顿后再搜
+  if (trimmed) {
+    timer = setTimeout(() => search(trimmed), SEARCH_DELAY);
+  } else {
+    search("");
+  }
+});
+
+// 点键盘上的"搜索"：立即搜索并收起键盘
+const searchNow = () => {
+  clearTimeout(timer);
   search(input.value.trim());
-  uni.pageScrollTo({ scrollTop: 0, duration: 0 });
+  focused.value = false;
 };
 
-onLoad((query) => {
-  const q = decodeQueryValue((query as Record<string, string> | undefined)?.q).trim();
-  input.value = q;
-  search(q);
+const changeLayout = (value: ListLayout) => {
+  layout.value = value;
+  scrollToTop();
+};
+
+const summary = computed(() =>
+  loading.value && items.value.length === 0 ? "搜索中…" : `找到 ${total.value} 部`,
+);
+
+// 没有输入时的探索内容：本季热门、按季度浏览、文档入口
+const currentSeason = getCurrentSeason();
+
+const hot = useRequest(async () => {
+  const data = await request(GetAnimeListDocument, {
+    ...currentSeason,
+    sortBy: "POPULARITY",
+    pageSize: 6,
+  });
+  return data.animeList.content;
+});
+
+const browseSeasons = listSeasonsBackward(currentSeason, 8).map((key) => ({
+  id: `${key.year}-${key.season}`,
+  key,
+  label: formatSeason(key),
+}));
+
+const DOC_LINKS: { name: DocName; label: string }[] = [
+  { name: "about", label: "关于有希计划" },
+  { name: "metric", label: "评分说明" },
+  { name: "platforms", label: "平台参数" },
+];
+
+const openSeason = (key: SeasonKey) => {
+  openPage(routes.list({ key }));
+};
+
+const openDoc = (name: DocName) => {
+  openPage(routes.article(name));
+};
+
+onLoad((options) => {
+  const query = toPageQuery(options);
+  layout.value = parseLayout(query.layout) ?? layout.value;
+
+  // 从分享卡片打开时直接显示搜索结果
+  const q = decodeQueryValue(query.q).trim();
+  if (q) {
+    input.value = q;
+    search(q);
+  }
+
+  hot.run();
+});
+
+// 每次切到搜索页且还没有搜索词时，直接弹出键盘
+onShow(() => {
+  if (!keyword.value) focused.value = true;
+});
+
+onHide(() => {
+  focused.value = false;
 });
 
 onReachBottom(() => {
@@ -52,43 +144,169 @@ onReachBottom(() => {
 });
 
 onShareAppMessage(() => ({
-  title: keyword.value ? `${keyword.value} - 搜索结果 - 有希计划` : "搜索动画 - 有希计划",
-  path: routes.search(keyword.value),
+  title: keyword.value ? `搜索"${keyword.value}" - 有希计划` : "有希计划 - 更全面的动画评分",
+  path: routes.search({ keyword: keyword.value, layout: layout.value }),
 }));
 </script>
 
 <template>
-  <view class="page">
-    <SearchBar v-model="input" :focus="!keyword" @submit="submit" />
+  <view class="header">
+    <SearchBar v-model="input" v-model:focused="focused" @confirm="searchNow" />
+  </view>
 
-    <view v-if="!keyword" class="hint">输入关键词开始搜索</view>
+  <view v-if="!keyword" class="explore">
+    <view class="section">
+      <view class="section-title">
+        <text>本季热门</text>
+        <text class="section-subtitle">{{ formatSeason(currentSeason) }}</text>
+      </view>
 
-    <view v-else class="results">
-      <AnimeGrid
-        :items="items"
-        :total="total"
-        :loading="loading"
-        :finished="finished"
-        :error="error"
-        @retry="retry"
-      />
+      <view v-if="hot.error.value && !hot.data.value" class="hot-error" @tap="hot.run">
+        {{ hot.error.value }}，点击重试
+      </view>
+      <view v-else class="hot-grid">
+        <template v-if="hot.data.value">
+          <view v-for="anime in hot.data.value" :key="anime.animeId">
+            <AnimeCard :anime="anime" />
+          </view>
+        </template>
+        <template v-else>
+          <view v-for="index in 6" :key="index">
+            <AnimeCardSkeleton />
+          </view>
+        </template>
+      </view>
     </view>
+
+    <view class="section">
+      <view class="section-title">按季度浏览</view>
+      <view class="chips">
+        <view
+          v-for="item in browseSeasons"
+          :key="item.id"
+          class="chip"
+          hover-class="chip--active"
+          @tap="openSeason(item.key)"
+        >
+          {{ item.label }}
+        </view>
+      </view>
+    </view>
+
+    <view class="links">
+      <view
+        v-for="link in DOC_LINKS"
+        :key="link.name"
+        class="link"
+        hover-class="link--active"
+        @tap="openDoc(link.name)"
+      >
+        {{ link.label }}
+      </view>
+    </view>
+  </view>
+
+  <view v-else class="results">
+    <ListToolbar :summary="summary" :layout="layout" @update:layout="changeLayout" />
+    <AnimeList
+      :items="items"
+      :layout="layout"
+      :total="total"
+      :loading="loading"
+      :finished="finished"
+      :error="error"
+      empty-text="没有找到相关动画"
+      @retry="retry"
+    />
   </view>
 </template>
 
 <style lang="scss" scoped>
-.page {
-  padding: 16px $page-gutter 0;
+/* H5 下页面顶部有模拟导航栏，--window-top 是它的高度；小程序里该变量不存在，回退为 0 */
+.header {
+  position: sticky;
+  top: var(--window-top, 0px);
+  z-index: 10;
+  padding: 8px $page-gutter;
+  background-color: #fff;
 }
 
-.hint {
-  padding: 40px 0;
-  color: $gray-600;
-  font-size: 15px;
+.explore {
+  padding: 8px $page-gutter 32px;
+}
+
+.section + .section {
+  margin-top: 28px;
+}
+
+.section-title {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 12px;
+  color: $gray-900;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.section-subtitle {
+  margin-left: 8px;
+  color: $gray-400;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.hot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 10px;
+  row-gap: 16px;
+}
+
+.hot-error {
+  padding: 24px 0;
+  color: $red-600;
+  font-size: 14px;
   text-align: center;
 }
 
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -4px;
+}
+
+.chip {
+  margin: 4px;
+  padding: 7px 14px;
+  border-radius: 16px;
+  background-color: $gray-100;
+  color: $gray-700;
+  font-size: 14px;
+}
+
+.chip--active {
+  background-color: $gray-200;
+}
+
+.links {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.link {
+  margin: 0 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: $gray-400;
+  font-size: 13px;
+}
+
+.link--active {
+  background-color: $gray-100;
+}
+
 .results {
-  margin-top: 24px;
+  padding: 0 $page-gutter;
 }
 </style>

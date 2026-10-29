@@ -19,15 +19,6 @@ export type SortBy =
   | 'POPULARITY'
   | 'SCORE';
 
-export type GetHomeAnimeRowsQueryVariables = Exact<{
-  currentYear: number;
-  currentSeason: Season;
-  yearlyBestYear: number;
-}>;
-
-
-export type GetHomeAnimeRowsQuery = { seasonBest: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, title: { titleNative: string | null, titleCn: string | null } }> }, seasonPopular: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, title: { titleNative: string | null, titleCn: string | null } }> }, yearlyBest: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, title: { titleNative: string | null, titleCn: string | null } }> }, allTimeBest: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, title: { titleNative: string | null, titleCn: string | null } }> } };
-
 export type GetAnimeListQueryVariables = Exact<{
   year?: number | null | undefined;
   season?: Season | null | undefined;
@@ -37,7 +28,7 @@ export type GetAnimeListQueryVariables = Exact<{
 }>;
 
 
-export type GetAnimeListQuery = { animeList: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, title: { titleNative: string | null, titleCn: string | null } }>, pageInfo: { size: number, number: number, totalElements: number, totalPages: number } } };
+export type GetAnimeListQuery = { animeList: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, popularity: number | null, startDate: string | null, title: { titleNative: string | null, titleCn: string | null } }>, pageInfo: { size: number, number: number, totalElements: number, totalPages: number } } };
 
 export type GetAnimeListBySearchQueryVariables = Exact<{
   keyword?: string | null | undefined;
@@ -46,11 +37,11 @@ export type GetAnimeListBySearchQueryVariables = Exact<{
 }>;
 
 
-export type GetAnimeListBySearchQuery = { animeListBySearch: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, title: { titleNative: string | null, titleCn: string | null } }>, pageInfo: { size: number, number: number, totalElements: number, totalPages: number } } };
+export type GetAnimeListBySearchQuery = { animeListBySearch: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, popularity: number | null, startDate: string | null, title: { titleNative: string | null, titleCn: string | null } }>, pageInfo: { size: number, number: number, totalElements: number, totalPages: number } } };
 
-export type AnimeListFragment = { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, title: { titleNative: string | null, titleCn: string | null } }>, pageInfo: { size: number, number: number, totalElements: number, totalPages: number } };
+export type AnimeListFragment = { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, popularity: number | null, startDate: string | null, title: { titleNative: string | null, titleCn: string | null } }>, pageInfo: { size: number, number: number, totalElements: number, totalPages: number } };
 
-export type AnimeCardFragment = { animeId: number, coverImage: string | null, averageScore: number | null, title: { titleNative: string | null, titleCn: string | null } };
+export type AnimeCardFragment = { animeId: number, coverImage: string | null, averageScore: number | null, popularity: number | null, startDate: string | null, title: { titleNative: string | null, titleCn: string | null } };
 
 export type GetAnimeDetailQueryVariables = Exact<{
   animeId: number;
@@ -88,6 +79,8 @@ export const AnimeCardFragmentDoc = new TypedDocumentString(`
   }
   coverImage
   averageScore
+  popularity
+  startDate
 }
     `, {"fragmentName":"AnimeCard"}) as unknown as TypedDocumentString<AnimeCardFragment, unknown>;
 export const AnimeListFragmentDoc = new TypedDocumentString(`
@@ -111,6 +104,8 @@ export const AnimeListFragmentDoc = new TypedDocumentString(`
   }
   coverImage
   averageScore
+  popularity
+  startDate
 }`, {"fragmentName":"AnimeList"}) as unknown as TypedDocumentString<AnimeListFragment, unknown>;
 export const MappingItemFragmentDoc = new TypedDocumentString(`
     fragment MappingItem on Mapping {
@@ -122,43 +117,6 @@ export const MappingItemFragmentDoc = new TypedDocumentString(`
   normalizedPopularity
 }
     `, {"fragmentName":"MappingItem"}) as unknown as TypedDocumentString<MappingItemFragment, unknown>;
-export const GetHomeAnimeRowsDocument = new TypedDocumentString(`
-    query GetHomeAnimeRows($currentYear: Int!, $currentSeason: Season!, $yearlyBestYear: Int!) {
-  seasonBest: animeList(year: $currentYear, season: $currentSeason, pageSize: 12) {
-    content {
-      ...AnimeCard
-    }
-  }
-  seasonPopular: animeList(
-    year: $currentYear
-    season: $currentSeason
-    pageSize: 12
-    sortBy: POPULARITY
-  ) {
-    content {
-      ...AnimeCard
-    }
-  }
-  yearlyBest: animeList(year: $yearlyBestYear, pageSize: 12) {
-    content {
-      ...AnimeCard
-    }
-  }
-  allTimeBest: animeList(pageSize: 12) {
-    content {
-      ...AnimeCard
-    }
-  }
-}
-    fragment AnimeCard on Anime {
-  animeId
-  title {
-    titleNative
-    titleCn
-  }
-  coverImage
-  averageScore
-}`) as unknown as TypedDocumentString<GetHomeAnimeRowsQuery, GetHomeAnimeRowsQueryVariables>;
 export const GetAnimeListDocument = new TypedDocumentString(`
     query GetAnimeList($year: Int, $season: Season, $pageNumber: Int, $pageSize: Int, $sortBy: SortBy) {
   animeList(
@@ -191,6 +149,8 @@ fragment AnimeCard on Anime {
   }
   coverImage
   averageScore
+  popularity
+  startDate
 }`) as unknown as TypedDocumentString<GetAnimeListQuery, GetAnimeListQueryVariables>;
 export const GetAnimeListBySearchDocument = new TypedDocumentString(`
     query GetAnimeListBySearch($keyword: String, $pageNumber: Int, $pageSize: Int) {
@@ -222,6 +182,8 @@ fragment AnimeCard on Anime {
   }
   coverImage
   averageScore
+  popularity
+  startDate
 }`) as unknown as TypedDocumentString<GetAnimeListBySearchQuery, GetAnimeListBySearchQueryVariables>;
 export const GetAnimeDetailDocument = new TypedDocumentString(`
     query GetAnimeDetail($animeId: ID!) {

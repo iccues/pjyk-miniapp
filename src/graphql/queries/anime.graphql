@@ -1,31 +1,3 @@
-query GetHomeAnimeRows($currentYear: Int!, $currentSeason: Season!, $yearlyBestYear: Int!) {
-  seasonBest: animeList(year: $currentYear, season: $currentSeason, pageSize: 12) {
-    content {
-      ...AnimeCard
-    }
-  }
-  seasonPopular: animeList(
-    year: $currentYear
-    season: $currentSeason
-    pageSize: 12
-    sortBy: POPULARITY
-  ) {
-    content {
-      ...AnimeCard
-    }
-  }
-  yearlyBest: animeList(year: $yearlyBestYear, pageSize: 12) {
-    content {
-      ...AnimeCard
-    }
-  }
-  allTimeBest: animeList(pageSize: 12) {
-    content {
-      ...AnimeCard
-    }
-  }
-}
-
 query GetAnimeList($year: Int, $season: Season, $pageNumber: Int, $pageSize: Int, $sortBy: SortBy) {
   animeList(
     year: $year
@@ -57,6 +29,7 @@ fragment AnimeList on AnimePage {
   }
 }
 
+# 宫格和横向行共用同一份数据，切换样式时不需要重新请求
 fragment AnimeCard on Anime {
   animeId
   title {
@@ -65,6 +38,8 @@ fragment AnimeCard on Anime {
   }
   coverImage
   averageScore
+  popularity
+  startDate
 }
 
 query GetAnimeDetail($animeId: ID!) {
