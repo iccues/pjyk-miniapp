@@ -5,7 +5,14 @@ const focused = defineModel<boolean>("focused", { default: false });
 
 const emit = defineEmits<{ confirm: [] }>();
 
-withDefaults(defineProps<{ placeholder?: string }>(), { placeholder: "搜索动画名称" });
+withDefaults(
+  defineProps<{
+    placeholder?: string;
+    /** 显示右侧的"搜索"按钮，首页使用；搜索页边输边搜，不需要按钮 */
+    showButton?: boolean;
+  }>(),
+  { placeholder: "搜索动画名称", showButton: false },
+);
 
 const clear = () => {
   keyword.value = "";
@@ -31,6 +38,9 @@ const clear = () => {
     />
     <view v-if="keyword" class="clear" @tap="clear">
       <view class="clear-icon" />
+    </view>
+    <view v-if="showButton" class="button" hover-class="button--active" @tap="emit('confirm')">
+      搜索
     </view>
   </view>
 </template>
@@ -92,5 +102,22 @@ const clear = () => {
 
 .clear-icon::after {
   transform: rotate(-45deg);
+}
+
+.button {
+  flex-shrink: 0;
+  height: 32px;
+  margin-right: 4px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background-color: $gray-900;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+.button--active {
+  background-color: $gray-700;
 }
 </style>

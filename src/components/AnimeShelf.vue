@@ -2,13 +2,18 @@
 import type { AnimeCardFragment } from "@/graphql/generated/graphql";
 
 import AnimeCard from "./AnimeCard.vue";
+import AnimeCardSkeleton from "./AnimeCardSkeleton.vue";
 
-// 可横向滑动的一行海报，右上角"查看全部"进入完整列表
-defineProps<{
-  title: string;
-  subtitle?: string;
-  animeList: AnimeCardFragment[];
-}>();
+// 可横向滑动的一行海报，右上角"查看全部"进入完整列表；首页和详情页共用
+withDefaults(
+  defineProps<{
+    title: string;
+    subtitle?: string;
+    animeList?: AnimeCardFragment[];
+    loading?: boolean;
+  }>(),
+  { loading: false },
+);
 
 const emit = defineEmits<{ more: [] }>();
 </script>
@@ -24,11 +29,20 @@ const emit = defineEmits<{ more: [] }>();
       </view>
     </view>
 
-    <scroll-view class="scroll" scroll-x :show-scrollbar="false" enhanced>
+    <view v-if="!loading && !animeList?.length" class="empty">暂无数据</view>
+
+    <scroll-view v-else class="scroll" scroll-x :show-scrollbar="false" enhanced>
       <view class="track">
-        <view v-for="anime in animeList" :key="anime.animeId" class="item">
-          <AnimeCard :anime="anime" />
-        </view>
+        <template v-if="loading && !animeList?.length">
+          <view v-for="index in 4" :key="index" class="item">
+            <AnimeCardSkeleton />
+          </view>
+        </template>
+        <template v-else>
+          <view v-for="anime in animeList" :key="anime.animeId" class="item">
+            <AnimeCard :anime="anime" />
+          </view>
+        </template>
       </view>
     </scroll-view>
   </view>
@@ -87,11 +101,18 @@ const emit = defineEmits<{ more: [] }>();
 
 .item {
   flex-shrink: 0;
-  width: 200rpx;
+  width: 220rpx;
   white-space: normal;
 }
 
 .item + .item {
   margin-left: 10px;
+}
+
+.empty {
+  padding: 40px 0;
+  color: $gray-600;
+  font-size: 15px;
+  text-align: center;
 }
 </style>

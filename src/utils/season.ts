@@ -57,9 +57,6 @@ export const listSeasonsBackward = (from: SeasonKey, count = Infinity): SeasonKe
   return seasons;
 };
 
-export const isSameSeason = (a: SeasonKey, b: SeasonKey): boolean =>
-  a.year === b.year && a.season === b.season;
-
 /**
  * 季度名称，例如"2026年10月"
  */

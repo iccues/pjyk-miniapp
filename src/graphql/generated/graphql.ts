@@ -19,6 +19,15 @@ export type SortBy =
   | 'POPULARITY'
   | 'SCORE';
 
+export type GetHomeAnimeRowsQueryVariables = Exact<{
+  currentYear: number;
+  currentSeason: Season;
+  yearlyBestYear: number;
+}>;
+
+
+export type GetHomeAnimeRowsQuery = { seasonBest: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, popularity: number | null, startDate: string | null, title: { titleNative: string | null, titleCn: string | null } }> }, seasonPopular: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, popularity: number | null, startDate: string | null, title: { titleNative: string | null, titleCn: string | null } }> }, yearlyBest: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, popularity: number | null, startDate: string | null, title: { titleNative: string | null, titleCn: string | null } }> }, allTimeBest: { content: Array<{ animeId: number, coverImage: string | null, averageScore: number | null, popularity: number | null, startDate: string | null, title: { titleNative: string | null, titleCn: string | null } }> } };
+
 export type GetAnimeListQueryVariables = Exact<{
   year?: number | null | undefined;
   season?: Season | null | undefined;
@@ -117,6 +126,45 @@ export const MappingItemFragmentDoc = new TypedDocumentString(`
   normalizedPopularity
 }
     `, {"fragmentName":"MappingItem"}) as unknown as TypedDocumentString<MappingItemFragment, unknown>;
+export const GetHomeAnimeRowsDocument = new TypedDocumentString(`
+    query GetHomeAnimeRows($currentYear: Int!, $currentSeason: Season!, $yearlyBestYear: Int!) {
+  seasonBest: animeList(year: $currentYear, season: $currentSeason, pageSize: 12) {
+    content {
+      ...AnimeCard
+    }
+  }
+  seasonPopular: animeList(
+    year: $currentYear
+    season: $currentSeason
+    pageSize: 12
+    sortBy: POPULARITY
+  ) {
+    content {
+      ...AnimeCard
+    }
+  }
+  yearlyBest: animeList(year: $yearlyBestYear, pageSize: 12) {
+    content {
+      ...AnimeCard
+    }
+  }
+  allTimeBest: animeList(pageSize: 12) {
+    content {
+      ...AnimeCard
+    }
+  }
+}
+    fragment AnimeCard on Anime {
+  animeId
+  title {
+    titleNative
+    titleCn
+  }
+  coverImage
+  averageScore
+  popularity
+  startDate
+}`) as unknown as TypedDocumentString<GetHomeAnimeRowsQuery, GetHomeAnimeRowsQueryVariables>;
 export const GetAnimeListDocument = new TypedDocumentString(`
     query GetAnimeList($year: Int, $season: Season, $pageNumber: Int, $pageSize: Int, $sortBy: SortBy) {
   animeList(

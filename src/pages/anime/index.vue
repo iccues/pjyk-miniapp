@@ -92,7 +92,9 @@ const openArticle = (name: DocName) => {
 };
 
 const openSeasonList = () => {
-  if (animeSeason.value) openPage(routes.list({ key: animeSeason.value }));
+  if (animeSeason.value) {
+    openPage(routes.list({ filters: { ...animeSeason.value, sortBy: "SCORE" } }));
+  }
 };
 
 const previewCover = () => {

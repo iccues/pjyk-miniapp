@@ -1,7 +1,8 @@
 import type { ListLayout } from "@/constants/ui-options";
 import type { Season, SortBy } from "@/graphql/generated/graphql";
 
-import { EARLIEST_YEAR, type SeasonKey } from "./season";
+import { applyFilterChanges, type AnimeListFilters } from "./filters";
+import { EARLIEST_YEAR } from "./season";
 
 /**
  * 页面 onLoad 收到的参数，值可能经过 encodeURIComponent
@@ -30,14 +31,21 @@ export const parseYear = (value: string | undefined): number | undefined => {
   return year >= EARLIEST_YEAR && year <= new Date().getFullYear() + 1 ? year : undefined;
 };
 
-export const parseSeasonKey = (query: PageQuery): SeasonKey | undefined => {
-  const year = parseYear(query.year);
-  const season = query.season as Season;
-  return year !== undefined && SEASONS.includes(season) ? { year, season } : undefined;
-};
-
 export const parseSortBy = (value: string | undefined): SortBy | undefined =>
   SORT_BYS.includes(value as SortBy) ? (value as SortBy) : undefined;
 
 export const parseLayout = (value: string | undefined): ListLayout | undefined =>
   LAYOUTS.includes(value as ListLayout) ? (value as ListLayout) : undefined;
+
+export const parseSeason = (value: string | undefined): Season | undefined =>
+  SEASONS.includes(value as Season) ? (value as Season) : undefined;
+
+/**
+ * 解析列表筛选条件，缺省的项用 defaults 补齐
+ */
+export const parseFilters = (query: PageQuery, defaults: AnimeListFilters): AnimeListFilters =>
+  applyFilterChanges(defaults, {
+    ...("year" in query && { year: parseYear(query.year) }),
+    ...("season" in query && { season: parseSeason(query.season) }),
+    ...(parseSortBy(query.sortBy) && { sortBy: parseSortBy(query.sortBy) }),
+  });

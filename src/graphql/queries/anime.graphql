@@ -1,3 +1,31 @@
+query GetHomeAnimeRows($currentYear: Int!, $currentSeason: Season!, $yearlyBestYear: Int!) {
+  seasonBest: animeList(year: $currentYear, season: $currentSeason, pageSize: 12) {
+    content {
+      ...AnimeCard
+    }
+  }
+  seasonPopular: animeList(
+    year: $currentYear
+    season: $currentSeason
+    pageSize: 12
+    sortBy: POPULARITY
+  ) {
+    content {
+      ...AnimeCard
+    }
+  }
+  yearlyBest: animeList(year: $yearlyBestYear, pageSize: 12) {
+    content {
+      ...AnimeCard
+    }
+  }
+  allTimeBest: animeList(pageSize: 12) {
+    content {
+      ...AnimeCard
+    }
+  }
+}
+
 query GetAnimeList($year: Int, $season: Season, $pageNumber: Int, $pageSize: Int, $sortBy: SortBy) {
   animeList(
     year: $year

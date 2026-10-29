@@ -13,6 +13,7 @@ import { PAGE_SIZE, type ListLayout } from "@/constants/ui-options";
 import { GetAnimeListBySearchDocument, GetAnimeListDocument } from "@/graphql/generated/graphql";
 import { request } from "@/graphql/request";
 import { openPage } from "@/utils/navigation";
+import { takePendingSearch } from "@/utils/pending-search";
 import { decodeQueryValue, parseLayout, toPageQuery } from "@/utils/query";
 import { routes, type DocName } from "@/utils/routes";
 import {
@@ -109,7 +110,7 @@ const DOC_LINKS: { name: DocName; label: string }[] = [
 ];
 
 const openSeason = (key: SeasonKey) => {
-  openPage(routes.list({ key }));
+  openPage(routes.list({ filters: { ...key, sortBy: "SCORE" } }));
 };
 
 const openDoc = (name: DocName) => {
@@ -130,8 +131,17 @@ onLoad((options) => {
   hot.run();
 });
 
-// 每次切到搜索页且还没有搜索词时，直接弹出键盘
 onShow(() => {
+  // 从首页搜索框提交过来的关键词
+  const pending = takePendingSearch();
+  if (pending) {
+    input.value = pending;
+    search(pending);
+    focused.value = false;
+    return;
+  }
+
+  // 切到搜索页且还没有搜索词时，直接弹出键盘
   if (!keyword.value) focused.value = true;
 });
 

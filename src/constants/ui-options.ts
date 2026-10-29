@@ -20,6 +20,17 @@ export const SORT_BY_OPTIONS: SelectOption<SortBy>[] = [
 ];
 
 /**
+ * 季度选项，"全部"表示不限定季度
+ */
+export const SEASON_OPTIONS: SelectOption<Season | undefined>[] = [
+  { label: "全部", value: undefined },
+  { label: "1月", value: "WINTER" },
+  { label: "4月", value: "SPRING" },
+  { label: "7月", value: "SUMMER" },
+  { label: "10月", value: "FALL" },
+];
+
+/**
  * 季度名称映射
  */
 export const SEASON_NAME_MAP: Record<Season, string> = {
@@ -30,10 +41,10 @@ export const SEASON_NAME_MAP: Record<Season, string> = {
 };
 
 /**
- * 年份选项，从当前年份倒序到 startYear
+ * 年份选项，"全部年份"在最前，之后从当前年份倒序到 startYear
  */
-export function generateYearOptionsFrom(startYear: number): SelectOption<number>[] {
-  const years: SelectOption<number>[] = [];
+export function generateYearOptionsFrom(startYear: number): SelectOption<number | undefined>[] {
+  const years: SelectOption<number | undefined>[] = [{ label: "全部年份", value: undefined }];
 
   for (let year = new Date().getFullYear(); year >= startYear; year--) {
     years.push({ label: `${year}年`, value: year });

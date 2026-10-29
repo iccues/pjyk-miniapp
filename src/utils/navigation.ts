@@ -15,7 +15,7 @@ export const openPage = (url: string) => {
 };
 
 export const goHome = () => {
-  uni.switchTab({ url: TAB_PAGES.season });
+  uni.switchTab({ url: TAB_PAGES.home });
 };
 
 /**

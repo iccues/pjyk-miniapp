@@ -1,20 +1,23 @@
 <script setup lang="ts">
-// 带下划线的文字标签，新番的季度和榜单的年度/历史共用，保证两页顶部一致
-defineProps<{
+// 带下划线的文字标签，用于筛选栏的季度
+const props = defineProps<{
   label: string;
   active: boolean;
-  /** 显示下拉箭头，用于点开后弹出选择器的标签 */
-  caret?: boolean;
+  /** 禁用时变灰且不响应点击，例如没选年份时的季度 */
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{ select: [] }>();
+
+const onTap = () => {
+  if (!props.disabled) emit("select");
+};
 </script>
 
 <template>
   <!-- 文字直接放在 view 里：H5 的 text 组件自带 pre-line，会让 nowrap 失效 -->
-  <view class="tab" :class="{ 'tab--active': active }" @tap="emit('select')">
+  <view class="tab" :class="{ 'tab--active': active, 'tab--disabled': disabled }" @tap="onTap">
     {{ label }}
-    <view v-if="caret" class="caret" />
   </view>
 </template>
 
@@ -45,12 +48,11 @@ const emit = defineEmits<{ select: [] }>();
   background-color: $indigo-600;
 }
 
-.caret {
-  width: 5px;
-  height: 5px;
-  margin: -3px 0 0 6px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(45deg);
+.tab--disabled {
+  color: $gray-300;
+}
+
+.tab--disabled::after {
+  background-color: $gray-300;
 }
 </style>

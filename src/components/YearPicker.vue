@@ -4,7 +4,8 @@ import { computed } from "vue";
 import { generateYearOptionsFrom } from "@/constants/ui-options";
 import { EARLIEST_YEAR } from "@/utils/season";
 
-const year = defineModel<number>({ required: true });
+// undefined 表示全部年份
+const year = defineModel<number | undefined>();
 
 const options = generateYearOptionsFrom(EARLIEST_YEAR);
 const labels = options.map((option) => option.label);
@@ -16,6 +17,8 @@ const selectedIndex = computed(() =>
   ),
 );
 
+const label = computed(() => (year.value ? `${year.value}年` : "全部年份"));
+
 const onChange = (event: { detail: { value: number | string } }) => {
   const option = options[Number(event.detail.value)];
   if (option) year.value = option.value;
@@ -25,7 +28,7 @@ const onChange = (event: { detail: { value: number | string } }) => {
 <template>
   <picker mode="selector" :range="labels" :value="selectedIndex" @change="onChange">
     <view class="trigger">
-      <text>{{ year }}年</text>
+      <text>{{ label }}</text>
       <view class="caret" />
     </view>
   </picker>
